@@ -1,0 +1,117 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="app.css">
+  </head>
+
+  <body>
+
+  <div class="jumbotron">
+    <h1 class="text-center">
+      HYECO ROAD
+    </h1>
+
+    <p class="text-center lead">
+      Pour vous aider à négocier votre futur achat immobilier, la HYECO ROAD est là pour vous aider.
+    </p>
+  </div>
+
+  <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+    <li class="nav-item active">
+      <a class="nav-link" id="home-tab" data-toggle="tab" href="#ventes" role="tab" aria-controls="home" aria-selected="true">
+        Evolution des ventes à Meylan(38)
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="profile-tab" data-toggle="tab" href="#energy" role="tab" aria-controls="profile" aria-selected="false">
+        Estimer la valeur verte dans votre région
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="contact-tab" data-toggle="tab" href="#upload" role="tab" aria-controls="contact" aria-selected="false">
+        Uploadez votre dossier de diagnostic technique
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" id="contact-tab" data-toggle="tab" href="#simulation" role="tab" aria-controls="contact" aria-selected="false">
+        Simuler le montant de vos travaux de rénnovation
+      </a>
+    </li>
+    
+  </ul>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane" id="ventes" role="tabpanel" aria-labelledby="home-tab" align="center">
+      <div id="apparts"></div>
+      <div id="maisons"></div>
+      <div id="volumes"></div>
+    </div>
+    <div class="tab-pane fade" id="energy" role="tabpanel" aria-labelledby="profile-tab">...</div>
+    <div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="contact-tab">...</div>
+    <div class="tab-pane fade" id="simulation" role="tabpanel" aria-labelledby="contact-tab">
+      <div class="typeform-widget" data-url="https://form.typeform.com/to/HJyBawv8" style="width: 100%; height: 500px;"></div> <script> (function() { var qs,js,q,s,d=document, gi=d.getElementById, ce=d.createElement, gt=d.getElementsByTagName, id="typef_orm", b="https://embed.typeform.com/"; if(!gi.call(d,id)) { js=ce.call(d,"script"); js.id=id; js.src=b+"embed.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(js,q) } })() </script> <div style="font-family: Sans-Serif;font-size: 12px;color: #999;opacity: 0.5; padding-top: 5px;"> powered by <a href="https://admin.typeform.com/signup?utm_campaign=HJyBawv8&utm_source=typeform.com-01EB5YX9VMMADXX4F4N7YHBEP1-professional&utm_medium=typeform&utm_content=typeform-embedded-poweredbytypeform&utm_term=EN" style="color: #999" target="_blank">Typeform</a> </div>
+    </div>
+  </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart'],});
+      google.charts.setOnLoadCallback(draw);
+
+      function drawChart(data, parentElement, title) {
+        var options = {
+          title: title,
+          curveType: 'function',
+          legend: { position: 'bottom' },
+          width: 900,
+          height: 500,
+          enableInteractivity: true
+        };
+
+        var chart = new google.visualization.LineChart(parentElement);
+
+        chart.draw(data, options);
+      }
+
+      function draw() {
+        let appartsData = google.visualization.arrayToDataTable([
+          ['Year', '1 pièce', '2 pièces', '3 pièces', '4 pièces', '5 pièces', '6 pièces', '7 pièces'],
+          ['2014',2974,4299,3932,3078,2721,3056,2069],
+          ['2015',3750,4203,3750,3041,2911,1651,1522],
+          ['2016',4583,3433,3500,3151,2846,2811,1621],
+          ['2017',3632,3745,3221,2898,2999,3248,714],
+          ['2018',3380,3553,3052,2833,3053,2453,,],
+          ['2019',,,3255,2838,3118,3345,2551]
+        ]);
+
+        let maisonsData = google.visualization.arrayToDataTable([
+          ['Year', '2', '3', '4', '5', '6', '7', '8'],
+          [2014,5129,5606,4224,4074,3423,3242,3735],
+          [2015,3655,4943,2960,4143,4282,4088,,],
+          [2016,,4863,4286,3786,3909,3786,2572],
+          [2017,,9349,4318,4355,4250,3324,3856],
+          [2018,2430,3509,4255,3542,3936,3821,2990],
+          [2019,2644,2957,2168,4715,3356,4317,3140]
+        ])
+
+        let volumesData =  google.visualization.arrayToDataTable([
+          ['Year', 'Volumes Appart', 'Volumes Maisons'],
+          [2014,195,65],
+          [2015,265,66],
+          [2016,241,66],
+          [2017,325,55],
+          [2018,222,63],
+          [2019,157,28]
+        ])
+
+        drawChart(appartsData, document.getElementById('apparts'), 'Appartements');
+        drawChart(maisonsData, document.getElementById('maisons'), 'Maisons');
+        drawChart(volumesData, document.getElementById('volumes'), 'Volumes de vente');
+      }
+    </script>
+  </body>
+</html>
