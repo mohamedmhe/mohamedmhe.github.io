@@ -12,7 +12,7 @@
 :root{
   --bg:#EEF5E4; --paper:#FFFDF6; --card:#FFFFFF; --ink:#24321F; --soft:#5B6B55;
   --red:#D3433A; --blue:#2C69C9; --hay:#F2B632; --hay-ink:#5a3f00;
-  --mute:#A3ADA0; --line:#D6E2C8; --good:#2E9B57; --good-ink:#FFFFFF;
+  --mute:#A3ADA0; --line:#D6E2C8; --good:#2E9B57; --good-ink:#FFFFFF; --rec-ring:rgba(211,67,58,.3);
   --f-display:"Sniglet","Comic Sans MS",system-ui,sans-serif;
   --f-read:"Andika","Verdana",system-ui,sans-serif;
   --f-cursive:"Playwrite FR Trad","Segoe Script",cursive;
@@ -26,6 +26,7 @@
   --red:#FF7D70; --blue:#7FAAFF; --hay:#F5C24E; --hay-ink:#3a2900;
   --mute:#6E7A6B; --line:#33422E; --good:#3FB86E; --good-ink:#0d2416; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-read);font-size:18px;
   -webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -42,7 +43,17 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 
 .page{flex:1;min-height:0;background:var(--paper);border:2px solid var(--line);border-radius:28px;
   box-shadow:0 14px 30px -22px rgba(0,0,0,.45);padding:20px;overflow:auto;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;position:relative}
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:16px;text-align:center;position:relative}
+.page>:first-child{margin-top:auto} .page>:last-child{margin-bottom:auto}
+.repeat{display:flex;flex-direction:column;align-items:center;gap:10px;border-top:2px dashed var(--line);padding-top:16px;width:100%}
+.rep-title{font-family:var(--f-display);font-size:26px;margin:0}
+.rep-title b{color:var(--blue)}
+.mic{width:96px;height:96px;border-radius:50%;font-size:44px;background:var(--card);border:3px solid var(--line);display:grid;place-items:center;transition:box-shadow .08s}
+.mic.rec{background:var(--red);border-color:var(--red);box-shadow:0 0 0 calc(var(--lvl,0) * 24px) var(--rec-ring)}
+.mic:disabled{opacity:.3}
+.adult-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.okbtn{font-family:var(--f-display);font-size:22px;background:var(--good);color:var(--good-ink);border:0;border-radius:999px;padding:12px 22px}
+.status{font-family:var(--f-display);font-size:20px;color:var(--soft);margin:0;min-height:28px}
 .page.turn{animation:turn .35s ease-out}
 @keyframes turn{from{opacity:0;transform:translateX(30px) rotateY(-8deg)}to{opacity:1;transform:none}}
 
@@ -334,7 +345,7 @@ function pageDone(){if(!finished.has(pg)){finished.add(pg);store.set('biscotte-d
 function showNext(anim){const n=$('next');n.classList.remove('off');if(anim){n.classList.remove('appear');void n.offsetWidth;n.classList.add('appear')}}
 function updateTop(){$('stars').textContent='★ '+finished.size;$('bar').style.width=(pg/(BOOK.length-1)*100)+'%'}
 
-function go(i){hush();token++;busy=false;document.body.classList.remove('busy');
+function go(i){hush();if(stopRec)stopRec();token++;busy=false;document.body.classList.remove('busy');
   pg=Math.max(0,Math.min(BOOK.length-1,i));store.set('biscotte-page',pg);
   const P=BOOK[pg],page=$('page');page.innerHTML='';page.classList.remove('turn');void page.offsetWidth;page.classList.add('turn');
   const n=$('next');n.className='next off';n.textContent='▶';n.setAttribute('aria-label','Page suivante');
@@ -345,6 +356,63 @@ function go(i){hush();token++;busy=false;document.body.classList.remove('busy');
   if(finished.has(pg)||['cover','chap','end'].includes(P.type))showNext(false);
   if(P.type==='cover'||P.type==='end')n.classList.add('off');
   page.scrollTop=0}
+
+/* ---------- Micro : l'enfant répète, on s'écoute, l'adulte valide ---------- */
+let micStream=null,micTimer=null,stopRec=null;
+const canRec=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+async function getMic(){clearTimeout(micTimer);
+  if(micStream&&micStream.getTracks().some(t=>t.readyState==='live'))return micStream;
+  micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:true}});return micStream}
+function releaseMicLater(){clearTimeout(micTimer);micTimer=setTimeout(()=>{try{micStream&&micStream.getTracks().forEach(t=>t.stop())}catch(e){}micStream=null},60000)}
+async function record(maxMs,meter){const s=await getMic();
+  const mime=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(m=>{try{return MediaRecorder.isTypeSupported(m)}catch(e){return false}});
+  const mr=new MediaRecorder(s,mime?{mimeType:mime}:undefined);const chunks=[];mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  const c=ac();let an=null,src=null;try{src=c.createMediaStreamSource(s);an=c.createAnalyser();an.fftSize=1024;src.connect(an)}catch(e){}
+  const buf=new Float32Array(1024);let heard=!an,lastLoud=0,raf;const t0=performance.now();
+  return new Promise(res=>{
+    function stop(){cancelAnimationFrame(raf);stopRec=null;if(mr.state!=='inactive')mr.stop()}
+    function tick(){const now=performance.now();
+      if(an){an.getFloatTimeDomainData(buf);let r=0;for(let i=0;i<buf.length;i++)r+=buf[i]*buf[i];r=Math.sqrt(r/buf.length);
+        meter.style.setProperty('--lvl',Math.min(1,r*10).toFixed(2));if(r>.02){heard=true;lastLoud=now}}
+      if(now-t0>maxMs||(heard&&an&&lastLoud&&now-lastLoud>1000)){stop();return}raf=requestAnimationFrame(tick)}
+    mr.onstop=()=>{try{src&&src.disconnect()}catch(e){}meter.style.setProperty('--lvl',0);releaseMicLater();
+      res({blob:new Blob(chunks,{type:mr.mimeType||'audio/webm'}),heard})};
+    stopRec=stop;mr.start();tick()})}
+function playUrl(url){return new Promise(r=>{try{const a=new Audio(url);let d=false;const f=()=>{if(!d){d=true;r()}};
+  a.onended=f;a.onerror=f;setTimeout(f,15000);a.play().catch(f)}catch(e){r()}})}
+function setBusy(b){busy=b;document.body.classList.toggle('busy',b)}
+
+function repeat(page,model,label,maxMs){
+  const box=el('div','repeat');
+  const t=el('p','rep-title','À toi ! Répète : <b></b>');t.querySelector('b').textContent=label;
+  const mic=el('button','mic step now','🎤');mic.setAttribute('aria-label','Enregistrer ma voix');
+  const st=el('p','status','Touche le micro et répète.');
+  const me=el('button','all','👂 Me réécouter');me.hidden=true;
+  const adult=el('div','repeat');adult.style.borderTop='0';adult.style.paddingTop='0';adult.hidden=true;
+  const again=el('button','all','🔁 Encore'),ok=el('button','okbtn step now','👍 Bien dit !');
+  const row=el('div','adult-row');row.append(again,ok);adult.append(el('p','who','L\'adulte valide :'),row);
+  box.append(t,mic,st,me,adult);page.append(box);
+  setTimeout(()=>{try{box.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){}},50);
+  let rec=false,url=null;const myTok=token;
+  function noMic(msg){st.textContent=msg;mic.disabled=true;mic.classList.remove('now');adult.hidden=false}
+  mic.onclick=async()=>{
+    if(rec){stopRec&&stopRec();return}
+    if(busy)return;
+    if(!canRec()){noMic('Le micro ne marche pas ici. Écoute ton enfant répéter, puis valide.');return}
+    hush();ac();rec=true;setBusy(true);mic.classList.remove('now');mic.classList.add('rec');st.textContent='Je t\'écoute… ';adult.hidden=true;me.hidden=true;
+    try{const r=await record(maxMs,mic);rec=false;mic.classList.remove('rec');if(token!==myTok)return;
+      if(!r.heard){st.textContent='Je n\'ai rien entendu. Parle un peu plus fort !';mic.classList.add('now');setBusy(false);return}
+      if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(r.blob);
+      st.textContent='👂 Écoute-toi…';await playUrl(url);if(token!==myTok)return;
+      st.textContent='🫏 Et Biscotte…';await model();if(token!==myTok)return;
+      st.textContent='C\'est pareil ?';me.hidden=false;adult.hidden=false;
+    }catch(e){rec=false;mic.classList.remove('rec');noMic('Le micro n\'est pas autorisé. Écoute ton enfant répéter, puis valide.')}
+    if(token===myTok)setBusy(false)};
+  me.onclick=()=>{if(busy||!url)return;lock(()=>playUrl(url))};
+  again.onclick=()=>{if(busy)return;adult.hidden=true;me.hidden=true;st.textContent='🫏 Écoute bien Biscotte…';
+    lock(model).then(()=>{st.textContent='À toi ! Touche le micro.';if(!mic.disabled)mic.classList.add('now');else adult.hidden=false})};
+  ok.onclick=()=>{if(busy)return;ok.classList.remove('now');st.textContent='Bravo ! ⭐';adult.hidden=true;me.hidden=false;pageDone()};
+}
 
 /* ---------- Les types de pages ---------- */
 function donkey(cls='donkey'){const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('class',cls);s.setAttribute('viewBox','0 0 160 150');
@@ -357,7 +425,7 @@ function adultLine(text){const w=el('div','');w.style.display='flex';w.style.fle
 
 const RENDER={
  cover(page){const d=donkey();page.append(d,el('h1','','Lire avec Biscotte'),
-   el('p','parents','Un livre à lire ensemble, une page à la fois. L\'adulte lit la phrase, l\'enfant touche ce qui clignote et répète le son. 3 minutes par jour suffisent.'));
+   el('p','parents','Un livre à lire ensemble, une page à la fois. L\'adulte lit la phrase, l\'enfant touche ce qui clignote, puis répète dans le micro 🎤. On s\'écoute, et l\'adulte valide. 3 minutes par jour suffisent.'));
    if(hasVoices&&!frVoice)page.append(el('p','novoice','Pas de voix française sur cet appareil : les mots ne seront pas lus à voix haute.'));
    const saved=store.get('biscotte-resume',0);
    const b=el('button','start',saved>0?'Continuer':'Commencer');
@@ -370,13 +438,15 @@ const RENDER={
    for(let i=0;i<3;i++)fl.append(el('span','',P.l));sc.append(fl);page.append(sc);
    const L=el('button','tap big-letter '+k,P.l);L.setAttribute('aria-label','Faire le son');
    page.append(L,el('p','who','L\'enfant touche la lettre et répète le son.'));
-   seq([L],[()=>{fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');return letterSound(P.l,3)}],pageDone)},
+   const model=()=>{fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');return letterSound(P.l,3)};
+   seq([L],[model],()=>repeat(page,model,P.l+', '+P.l+', '+P.l,4000))},
  syl(page,P){const row=el('div','sylrow');
    const a=el('button','tap c',P.c),plus=el('span','op','+'),b=el('button','tap v',P.v),eq=el('span','op','='),
      r=el('button','tap syl-res','<b>'+P.c+'</b><i>'+P.v+'</i>');
    row.append(a,plus,b);page.append(el('p','who','Touche chaque lettre, puis la syllabe.'),row,eq,r);
    seq([a,b,r],[()=>letterSound(P.c,1),()=>letterSound(P.v,1),
-     ()=>{r.classList.add('lit');return sayP(spk(P.c+P.v,spokenSyl(P.c,P.v))).then(()=>r.classList.remove('lit'))}],pageDone)},
+     ()=>{r.classList.add('lit');return sayP(spk(P.c+P.v,spokenSyl(P.c,P.v))).then(()=>r.classList.remove('lit'))}],
+     ()=>repeat(page,()=>sayP(spk(P.c+P.v,spokenSyl(P.c,P.v))),P.c+P.v,3000))},
  jeu(page){const pool=SYLS.map(([c,v])=>c+v);
    const ans=pool[Math.floor(Math.random()*pool.length)];let other;do{other=pool[Math.floor(Math.random()*pool.length)]}while(other===ans);
    const opts=Math.random()<.5?[ans,other]:[other,ans];const say1=()=>{const [c,v]=SYLS.find(([c,v])=>c+v===ans);return sayP(spk(ans,spokenSyl(c,v)))};
@@ -398,14 +468,16 @@ const RENDER={
    page.append(el('p','who','Lis chaque morceau, puis touche l\'image.'),row,cur,pic);
    const sp=P.sp||P.s;
    seq([...parts,pic],[...parts.map((b,i)=>()=>{flash(b,900);return sayP(spk(sp[i]))}),
-     ()=>{parts.forEach(b=>flash(b,1100));return sayP(P.w)}],pageDone)},
+     ()=>{parts.forEach(b=>flash(b,1100));return sayP(P.w)}],
+     ()=>repeat(page,()=>sayP(P.w),P.w,3500))},
  phrase(page,P){page.append(el('div','pic',P.p));const row=el('div','sentrow');
    const words=P.t.split(' ').map(w=>{const b=el('button','tap',w);row.append(b);return b});
    const all=el('button','tap all','🔊 Toute la phrase');
    page.append(el('p','who','Lis chaque mot, puis toute la phrase.'),row,all);
    const clean=w=>w.textContent.replace(/[.,!?]/g,'');
    seq([...words,all],[...words.map(b=>()=>{flash(b,900);return sayP(clean(b))}),
-     async()=>{for(const b of words){if(!document.body.contains(b))return;b.classList.add('lit');await sayP(clean(b));b.classList.remove('lit')}}],pageDone)},
+     async()=>{for(const b of words){if(!document.body.contains(b))return;b.classList.add('lit');await sayP(clean(b));b.classList.remove('lit')}}],
+     ()=>repeat(page,()=>sayP(P.t),P.t,8000))},
  end(page){page.append(donkey(),el('h2','','Bravo ! Tu as lu tout le livre'),el('p','lead','Tu as gagné '+finished.size+' étoiles. Biscotte est très fier de toi.'));
    const b=el('button','start','Relire le livre');b.onclick=()=>go(1);page.append(b)}
 };
