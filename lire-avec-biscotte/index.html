@@ -136,6 +136,15 @@ h1{font-size:clamp(34px,8vw,54px)} h2{font-size:clamp(28px,6.5vw,42px)}
 .menu .item{display:flex;justify-content:space-between;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px 16px;font-family:var(--f-display);font-size:20px}
 .menu .item small{font-family:var(--f-read);font-size:14px;color:var(--soft)}
 .novoice{font-size:14px;color:var(--red);margin:0}
+.board{position:relative;display:flex;justify-content:space-between;width:100%;max-width:400px;gap:16px}
+.board .col{display:flex;flex-direction:column;justify-content:space-around;gap:18px;position:relative;z-index:1}
+.spk{width:78px;height:78px;border-radius:50%;background:var(--card);border:5px solid var(--pc);font-size:34px;display:grid;place-items:center;padding:0}
+.rl{min-width:86px;height:86px;border-radius:22px;background:var(--card);border:4px solid var(--line);font-weight:700;font-size:58px;line-height:1;display:grid;place-items:center;padding:0 12px}
+.rl.ok{border-color:var(--pc)}
+.board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.board line{stroke-width:7;stroke-linecap:round}
+.board line.draw{stroke-dasharray:400;stroke-dashoffset:400;animation:draw .45s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -304,8 +313,11 @@ const BOOK=[{type:'cover'}];const CHAPTERS=[];
 function chap(title,text){CHAPTERS.push({title,at:BOOK.length});BOOK.push({type:'chap',n:CHAPTERS.length,title,text})}
 chap('Les voyelles','Les voyelles sont en rouge. Elles chantent toutes seules.');
 SOUNDS.filter(s=>isVow(s.l)).forEach(s=>BOOK.push({type:'son',...s}));
+const relier=pool=>[2,2,3,3].forEach(n=>BOOK.push({type:'relier',pool,n}));
+relier(SOUNDS.filter(s=>isVow(s.l)).map(s=>s.l));
 chap('Les consonnes','Les consonnes sont en bleu. On fait leur son, pas leur nom : s, s, s et pas « esse ».');
 SOUNDS.filter(s=>!isVow(s.l)).forEach(s=>BOOK.push({type:'son',...s}));
+relier(SOUNDS.filter(s=>!isVow(s.l)).map(s=>s.l));
 chap('Les syllabes','Une consonne et une voyelle se collent : m et a, ça fait ma.');
 SYLS.forEach(([c,v])=>BOOK.push({type:'syl',c,v}));
 for(let k=0;k<3;k++)BOOK.push({type:'jeu'});
@@ -478,6 +490,36 @@ const RENDER={
    seq([...words,all],[...words.map(b=>()=>{flash(b,900);return sayP(clean(b))}),
      async()=>{for(const b of words){if(!document.body.contains(b))return;b.classList.add('lit');await sayP(clean(b));b.classList.remove('lit')}}],
      ()=>repeat(page,()=>sayP(P.t),P.t,8000))},
+ relier(page,P){const mix=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+   const pick=mix(P.pool).slice(0,P.n);let letters=mix(pick);
+   if(P.n>1&&letters.every((l,i)=>l===pick[i]))letters=[...letters.slice(1),letters[0]];
+   const COL=['var(--red)','var(--blue)','var(--good)'];
+   page.append(el('p','chapter','Jeu'),el('h2','','Relie le son à sa lettre'),el('p','who','Touche le haut-parleur, écoute, puis touche la bonne lettre.'));
+   const board=el('div','board'),L=el('div','col'),R=el('div','col');
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');board.append(svg,L,R);
+   const fb=el('p','feedback','');page.append(board,fb);
+   const spk=pick.map((l,i)=>{const b=el('button','tap spk step','🔊');b.style.setProperty('--pc',COL[i]);b.setAttribute('aria-label','Écouter le son '+(i+1));L.append(b);return b});
+   const lb=letters.map(l=>{const b=el('button','tap rl step '+(isVow(l)?'v':'c'),l);R.append(b);return b});
+   let i=0,heard=false;const pairs=[];
+   function upd(){spk.forEach((b,j)=>{b.classList.toggle('now',j===i&&!heard);b.classList.toggle('wait',j>i)});
+     lb.forEach(b=>{const ok=b.classList.contains('ok');b.classList.toggle('now',heard&&!ok);b.classList.toggle('wait',!heard&&!ok)})}
+   function line(a,b,col,anim){const r0=board.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();
+     const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+     ln.setAttribute('x1',ra.right-r0.left);ln.setAttribute('y1',ra.top+ra.height/2-r0.top);
+     ln.setAttribute('x2',rb.left-r0.left);ln.setAttribute('y2',rb.top+rb.height/2-r0.top);
+     ln.style.stroke=col;if(anim)ln.setAttribute('class','draw');svg.append(ln)}
+   window.__redraw=()=>{if(!document.body.contains(board))return;svg.innerHTML='';pairs.forEach(([a,b,c])=>line(a,b,c,false))};
+   const play=()=>letterSound(pick[i],3);
+   spk.forEach((b,j)=>b.onclick=()=>{if(busy)return;if(j!==i){if(j>i)nudge(spk[i]);return}
+     b.classList.remove('now');lock(play).then(()=>{heard=true;upd()})});
+   lb.forEach((b,k)=>b.onclick=()=>{if(busy||b.classList.contains('ok')||i>=pick.length)return;
+     if(!heard){nudge(spk[i]);return}
+     if(letters[k]===pick[i]){b.classList.add('ok');b.style.setProperty('--pc',COL[i]);pairs.push([spk[i],b,COL[i]]);line(spk[i],b,COL[i],true);
+       spk[i].classList.remove('now');hop();i++;heard=false;
+       if(i===pick.length){upd();lb.forEach(x=>x.classList.remove('now'));fb.textContent='Bravo ! ⭐';lock(()=>sayP('Bravo !')).then(pageDone)}
+       else{fb.textContent='Oui !';upd()}}
+     else{nudge(b);fb.textContent='Pas celle-là. Écoute encore.';lock(play)}});
+   upd()},
  end(page){page.append(donkey(),el('h2','','Bravo ! Tu as lu tout le livre'),el('p','lead','Tu as gagné '+finished.size+' étoiles. Biscotte est très fier de toi.'));
    const b=el('button','start','Relire le livre');b.onclick=()=>go(1);page.append(b)}
 };
@@ -485,6 +527,7 @@ const RENDER={
 /* ---------- Navigation ---------- */
 $('next').onclick=()=>{if($('next').classList.contains('off'))return;go(pg+1)};
 $('prev').onclick=()=>go(pg-1);
+window.addEventListener('resize',()=>{window.__redraw&&window.__redraw()});
 const origGo=go;
 // la couverture propose « Continuer » à la page où l'on s'était arrêté
 window.go=go;
