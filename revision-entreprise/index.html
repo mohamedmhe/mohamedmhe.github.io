@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Révision Techno : la découverte de l'entreprise</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f3f5fa;color:#1d2433;line-height:1.45}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:22px;margin:6px 0 4px}
+h2{font-size:18px;margin:22px 0 8px}
+.sub{color:#5b6476;font-size:14px;margin-bottom:16px}
+.card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(20,30,60,.07);margin-bottom:14px}
+.btn{display:block;width:100%;text-align:left;border:none;border-radius:14px;padding:14px 16px;margin:8px 0;font-size:16px;cursor:pointer;background:#fff;color:#1d2433;box-shadow:0 1px 4px rgba(20,30,60,.08);font-family:inherit}
+.btn:active{transform:scale(.99)}
+.btn.main{background:#3b5bdb;color:#fff;font-weight:600}
+.btn.alt{background:#e8ecfb;color:#2b3f9e;font-weight:600}
+.btn.red{background:#ffe3e3;color:#a61e1e;font-weight:600}
+.btn small{display:block;font-weight:400;opacity:.8;font-size:13px;margin-top:2px}
+.row{display:flex;gap:8px}
+.row .btn{text-align:center}
+.bar{height:10px;background:#e3e7f0;border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.bar>div{height:100%;background:linear-gradient(90deg,#37b24d,#69db7c);transition:width .3s}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;background:#e8ecfb;color:#2b3f9e}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px;color:#5b6476}
+.q{font-size:18px;font-weight:600;margin:12px 0 6px}
+.opt{display:block;width:100%;text-align:left;border:2px solid #e3e7f0;background:#fff;border-radius:12px;padding:12px 14px;margin:8px 0;font-size:16px;cursor:pointer;font-family:inherit;color:#1d2433}
+.opt.ok{border-color:#37b24d;background:#ebfbee}
+.opt.ko{border-color:#f03e3e;background:#fff5f5}
+.opt:disabled{cursor:default}
+input[type=text]{width:100%;font-size:17px;padding:12px 14px;border-radius:12px;border:2px solid #d0d6e2;font-family:inherit}
+input[type=text]:focus{outline:none;border-color:#3b5bdb}
+.fb{margin-top:12px;padding:12px 14px;border-radius:12px;font-size:15px}
+.fb.ok{background:#ebfbee;color:#1f6b2c}
+.fb.ko{background:#fff5f5;color:#9b1c1c}
+.big{font-size:52px;font-weight:800;text-align:center;margin:6px 0}
+.center{text-align:center}
+.wrong{border-left:4px solid #f03e3e;padding:8px 10px;margin:8px 0;background:#fff;border-radius:8px;font-size:14px}
+.wrong b{color:#1f6b2c}
+.fiche h3{margin:16px 0 6px;font-size:16px;color:#2b3f9e}
+.fiche ul{margin:4px 0;padding-left:20px}
+.fiche li{margin:4px 0}
+.note{background:#fff9db;border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{border:1px solid #dfe3ec;padding:6px;vertical-align:top}
+th{background:#f1f3f9}
+.link{background:none;border:none;color:#3b5bdb;font-size:15px;cursor:pointer;padding:6px 0;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+var CH={def:"Définitions",cla:"Classification",str:"Structure et organigramme",env:"Environnement",tab:"Exercice du tableau",prof:"Fiche prof : qu'est-ce que l'entreprise"};
+
+var Q=[
+// ===== DEFINITIONS =====
+{c:"def",t:"txt",q:"Une entreprise se définit par son nom, qui est sa ...",acc:["raison sociale"],r:"sa raison sociale"},
+{c:"def",t:"txt",q:"Une entreprise se définit par son adresse, qui est son ...",acc:["siege social"],r:"son siège social"},
+{c:"def",q:"Le nom de l'entreprise s'appelle ...",o:["la raison sociale","le siège social","le capital","le chiffre d'affaires"]},
+{c:"def",q:"Complète : « Une entreprise est un ensemble de moyens (personnel et capital), réunis et organisés, destinés à ... »",o:["produire et commercialiser des biens et/ou des services","acheter des actions en bourse","payer des impôts à l'État","embaucher le plus de salariés possible"]},
+{c:"def",q:"« ... des biens et/ou des services qui seront vendus pour réaliser ... »",o:["des bénéfices","des dépenses","des stocks","des salaires"]},
+{c:"def",t:"txt",q:"Une entreprise est un ensemble de ... (personnel et capital), réunis et organisés.",acc:["moyen"],r:"un ensemble de moyens"},
+{c:"def",q:"Une entreprise qui travaille avec des concurrents est dans un environnement concurrentiel, appelé ...",o:["le marché","le monopole","le siège social","le capital"]},
+{c:"def",q:"Un environnement NON concurrentiel (une seule entreprise) s'appelle ...",o:["le monopole","le marché","la PME","la demande"]},
+{c:"def",q:"Le marché dépend ...",o:["de l'offre et de la demande","uniquement des banques","seulement de l'État","du siège social"]},
+{c:"def",t:"txt",q:"Un bien est un ... ou un ... réalisé que l'entreprise va stocker avant de le vendre.",acc:["produit+objet"],r:"un produit ou un objet"},
+{c:"def",q:"Un bien, c'est quelque chose ...",o:["de concret, qu'on peut toucher et stocker","qu'on ne peut pas toucher","qui se consomme en même temps qu'il est produit","qui n'a pas de valeur économique"]},
+{c:"def",t:"txt",q:"Un service est le ... d'une ... qui ne se traduit pas par un support matériel, mais qui a une valeur économique.",acc:["resultat+activite"],r:"le résultat d'une activité"},
+{c:"def",q:"Pourquoi un service ne peut-il pas être stocké ?",o:["Car la production et la consommation sont simultanées","Car il coûte trop cher","Car il est trop lourd","Car l'État l'interdit"]},
+{c:"def",q:"Lequel de ces exemples est un SERVICE ?",o:["Transporter des voyageurs","Une voiture","Un réfrigérateur","Du carburant"]},
+{c:"def",q:"Lequel de ces exemples est un SERVICE ?",o:["Assurer une maison","Du papier","Une machine","Des produits alimentaires"]},
+{c:"def",q:"Lequel de ces exemples est un BIEN ?",o:["Du papier","Assurer une maison","Divertir","Transporter"]},
+{c:"def",q:"Les voitures, réfrigérateurs et machines sont des biens ...",o:["d'équipement","de consommation","de service","publics"]},
+{c:"def",q:"Les produits alimentaires, le papier et le carburant sont des biens ...",o:["de consommation","d'équipement","immatériels","quaternaires"]},
+{c:"def",t:"vf",q:"On définit un service par le fait qu'on ne peut pas le toucher.",a:0},
+{c:"def",t:"vf",q:"Un service peut être stocké avant d'être vendu.",a:1,e:"Faux : il n'y a pas de stockage, car la production et la consommation sont simultanées."},
+{c:"def",t:"txt",q:"Les biens et services correspondent à un ...",acc:["besoin"],r:"un besoin"},
+{c:"def",t:"txt",q:"Les biens et services constituent une ..., qui doit répondre à la ...",acc:["offre+demande"],r:"une offre, qui doit répondre à la demande"},
+{c:"def",q:"Le capital, ce sont ...",o:["des fonds investis à long terme dans l'entreprise par les dirigeants ou les actionnaires","les ventes de l'année","les salaires versés","l'adresse de l'entreprise"]},
+{c:"def",t:"txt",q:"Capital : il s'agit des ... à long terme ... dans l'entreprise par les dirigeants ou les actionnaires.",acc:["fond+invest"],r:"des fonds à long terme investis"},
+{c:"def",t:"txt",q:"Le chiffre d'affaires (CA) est la ... des ... de biens ou de services d'une entreprise.",acc:["somme+vente"],r:"la somme des ventes"},
+{c:"def",q:"Le chiffre d'affaires se calcule ...",o:["hors taxes (HT)","toutes taxes comprises (TTC)","après paiement des salaires","en nombre de salariés"]},
+{c:"def",q:"Le bénéfice correspond ...",o:["au chiffre d'affaires moins les charges","au chiffre d'affaires plus les charges","au capital de départ","au total des salaires"]},
+{c:"def",q:"Une entreprise vend pour 100 000 € et a 80 000 € de charges. Son bénéfice est de :",o:["20 000 €","180 000 €","80 000 €","100 000 €"],e:"Bénéfice = CA − charges = 100 000 − 80 000 = 20 000 €."},
+{c:"def",q:"Un magasin a un CA de 250 000 € et 190 000 € de charges. Son bénéfice est de :",o:["60 000 €","440 000 €","190 000 €","250 000 €"],e:"250 000 − 190 000 = 60 000 €."},
+{c:"def",q:"Une boulangerie a un CA de 50 000 € et 60 000 € de charges. Que se passe-t-il ?",o:["Elle perd 10 000 € (pas de bénéfice)","Elle gagne 10 000 €","Elle gagne 110 000 €","Son bénéfice est de 50 000 €"],e:"50 000 − 60 000 = −10 000 € : les charges sont plus grandes que le CA, c'est une perte."},
+{c:"def",q:"Lequel n'est PAS une charge de l'entreprise ?",o:["Les ventes aux clients","Les salaires","Les impôts","Le paiement des fournisseurs de matières premières"]},
+{c:"def",q:"Le bénéfice, c'est le montant qui reste à l'entreprise pour ...",o:["financer des investissements, faire des placements et rémunérer les dirigeants","payer les fournisseurs","calculer le chiffre d'affaires","choisir son siège social"]},
+{c:"def",q:"Les dividendes sont versés ...",o:["aux actionnaires","aux clients","aux fournisseurs","aux communes"]},
+
+// ===== CLASSIFICATION =====
+{c:"cla",q:"Quels sont les 4 critères de classification des entreprises ?",o:["Secteur d'activité, taille, composition du capital, forme juridique","Nom, adresse, logo, couleur","Clients, fournisseurs, banques, administration","Biens, services, offre, demande"]},
+{c:"cla",q:"Lequel n'est PAS un critère de classification des entreprises ?",o:["Le nom de l'entreprise","La taille","La forme juridique","La composition du capital"]},
+{c:"cla",q:"Qui a créé la classification la plus connue des secteurs d'activité ?",o:["Colin Clark, économiste anglais","Karl Marx","Adam Smith","Henry Ford"]},
+{c:"cla",q:"Le secteur PRIMAIRE regroupe les entreprises de ...",o:["production de matières premières","production industrielle et de transformation","production de services","production de haute technologie"]},
+{c:"cla",q:"Le secteur SECONDAIRE regroupe les entreprises de ...",o:["production industrielle et de transformation de matières premières","production de matières premières","production de services","production de haute technologie"]},
+{c:"cla",q:"Le secteur TERTIAIRE regroupe les entreprises de ...",o:["production de services","production de matières premières","production industrielle","production de haute technologie"]},
+{c:"cla",q:"Le secteur QUATERNAIRE regroupe les entreprises de ...",o:["production de haute technologie à haute valeur ajoutée","production de matières premières","production de services","transformation de matières premières"]},
+{c:"cla",q:"Exemples du secteur primaire :",o:["Bois, pétrole, minerai, légumes, élevage","Automobile, électroménager, informatique","Assurance, banque, opérateur","Coiffeur, médecin, taxi"]},
+{c:"cla",q:"Exemples du secteur secondaire :",o:["Automobile, électroménager, informatique","Bois, pétrole, minerai","Assurance, banque, opérateur","Légumes, élevage"]},
+{c:"cla",q:"Exemples du secteur tertiaire :",o:["Assurance, banque, opérateur","Automobile, électroménager","Bois, pétrole, minerai","Légumes, élevage"]},
+{c:"cla",q:"Darty vend des produits ET fait des réparations. Que montre cet exemple ?",o:["Une entreprise peut avoir des activités de natures différentes","Darty est une entreprise publique","Darty appartient au secteur primaire","Darty est une TPE"]},
+{c:"cla",q:"Une entreprise est à capital PUBLIC quand ...",o:["l'État possède tout ou au moins 50 % du capital","des actionnaires privés détiennent la majorité du capital","elle a plus de 500 salariés","elle est cotée en bourse"]},
+{c:"cla",t:"txt",q:"Capital public : ... possède tout ou au moins 50 % du capital de l'entreprise.",acc:["etat"],r:"L'État"},
+{c:"cla",q:"Une entreprise est à capital PRIVÉ quand ...",o:["la majorité du capital est détenue par des actionnaires privés (individu ou entreprise)","l'État possède au moins 50 % du capital","elle a moins de 10 salariés","elle ne fait pas de bénéfice"]},
+{c:"cla",q:"Laquelle est une entreprise publique ?",o:["EDF","H&M","Apple","Rossignol"]},
+{c:"cla",q:"Laquelle est une entreprise publique ?",o:["SNCF","Décathlon","Mercedes","Nvidia"]},
+{c:"cla",q:"Une micro-entreprise (TPE) a ...",o:["0 à 9 salariés","10 à 49 salariés","50 à 499 salariés","plus de 500 salariés"]},
+{c:"cla",q:"Une petite entreprise a ...",o:["10 à 49 salariés","0 à 9 salariés","50 à 499 salariés","plus de 500 salariés"]},
+{c:"cla",q:"Une moyenne entreprise a ...",o:["50 à 499 salariés","10 à 49 salariés","0 à 9 salariés","plus de 500 salariés"]},
+{c:"cla",q:"Une grande entreprise a ...",o:["plus de 500 salariés","50 à 499 salariés","10 à 49 salariés","0 à 9 salariés"]},
+{c:"cla",t:"txt",q:"Que veut dire TPE ?",acc:["tres petite+entreprise"],r:"Très Petite Entreprise"},
+{c:"cla",q:"Quel pourcentage des entreprises sont des TPE (0 à 9 salariés) ?",o:["92,9 %","5,9 %","1,1 %","0,1 %"]},
+{c:"cla",q:"Quel pourcentage des entreprises sont des grandes entreprises ?",o:["0,1 %","1,1 %","5,9 %","92,9 %"]},
+{c:"cla",q:"Les grandes entreprises (0,1 % des entreprises) emploient ...",o:["32,5 % des salariés","0,1 % des salariés","92,9 % des salariés","5,9 % des salariés"]},
+{c:"cla",q:"Les petites et moyennes entreprises sont regroupées sous le sigle ...",o:["PME ou PMI","SA ou SAS","TPE","EURL"]},
+{c:"cla",t:"txt",q:"Que signifie EURL ?",acc:["entreprise unipersonnelle+responsabilite limitee"],r:"Entreprise Unipersonnelle à Responsabilité Limitée"},
+{c:"cla",t:"txt",q:"Que signifie SARL ?",acc:["societe+responsabilite limitee"],r:"Société À Responsabilité Limitée"},
+{c:"cla",t:"txt",q:"Que signifie SA ?",acc:["societe anonyme"],r:"Société Anonyme"},
+{c:"cla",t:"txt",q:"Que signifie SAS ?",acc:["societe+action+simplifiee"],r:"Société par Actions Simplifiée (ta fiche écrit « à actions simplifiée »)"},
+{c:"cla",q:"Combien d'associés dans une entreprise individuelle ?",o:["1 seul","2 minimum","7 minimum","50 maximum"]},
+{c:"cla",q:"Combien d'associés dans une EURL ?",o:["1 seul","2 minimum","7 minimum","50 maximum"]},
+{c:"cla",q:"Combien d'associés dans une SARL (selon ta fiche) ?",o:["2 minimum, 50 maximum","1 seul","7 minimum","Aucun"]},
+{c:"cla",q:"Combien d'associés minimum dans une SA ou une SAS (selon ta fiche) ?",o:["7","1","2","50"]},
+{c:"cla",q:"Capital minimum d'une SA ou d'une SAS (selon ta fiche) ?",o:["37 000 €","1 €","Pas de capital minimum","Néant"]},
+{c:"cla",q:"Capital minimum d'une SARL (selon ta fiche) ?",o:["1 €","37 000 €","7 €","50 000 €"]},
+{c:"cla",q:"Capital minimum d'une EURL ?",o:["Pas de capital minimum","37 000 €","7 000 €","100 €"]},
+{c:"cla",q:"Capital de l'entreprise individuelle ?",o:["Néant","1 €","37 000 €","7 000 €"]},
+{c:"cla",q:"Régime fiscal de l'entreprise individuelle ?",o:["Impôt sur le revenu","Impôt sur les sociétés","Pas d'impôt","Impôt sur les sociétés ou sur le revenu"]},
+{c:"cla",q:"Régime fiscal de l'EURL et de la SARL ?",o:["Impôt sur les sociétés ou impôt sur le revenu","Impôt sur le revenu uniquement","Pas d'impôt","Impôt sur les sociétés uniquement"]},
+{c:"cla",q:"Régime fiscal de la SA et de la SAS ?",o:["Impôt sur les sociétés","Impôt sur le revenu","Pas d'impôt","Impôt sur le revenu ou sur les sociétés"]},
+{c:"cla",q:"Principal inconvénient de l'entreprise individuelle ?",o:["Elle engage le patrimoine familial du créateur","Le capital de départ est très élevé","Il faut 7 associés","Elle est trop complexe administrativement"]},
+{c:"cla",q:"Avantages de l'entreprise individuelle ?",o:["Pas de dépôt de statut et pas de capital minimum","Cotation en bourse possible","Patrimoine personnel protégé","Mouvement de capitaux autorisé"]},
+{c:"cla",q:"Avantage de l'EURL et de la SARL ?",o:["Elles peuvent aisément se transformer en SA","Cotation en bourse possible","Pas de dépôt de statut","Aucun impôt"]},
+{c:"cla",q:"Inconvénient de l'EURL et de la SARL ?",o:["Inadaptées en cas de développement et d'ouverture du capital à des investisseurs extérieurs","Elles engagent le patrimoine familial","Montant élevé du capital de départ","Il faut 7 associés"]},
+{c:"cla",q:"Avantages de la SA ?",o:["Cotation en bourse possible et mouvement de capitaux autorisé","Pas de capital minimum","Pas de dépôt de statut","Un seul associé"]},
+{c:"cla",q:"Inconvénients de la SA ?",o:["Montant élevé du capital de départ et grande complexité administrative","Elle engage le patrimoine familial","Elle ne peut pas grandir","Un seul associé possible"]},
+{c:"cla",q:"Quelle forme est plus simple administrativement que la SA et protège le patrimoine personnel ?",o:["SAS","Entreprise individuelle","SARL","EURL"]},
+{c:"cla",q:"Quelle forme juridique permet d'être coté en bourse ?",o:["SA","EURL","Entreprise individuelle","SARL"]},
+{c:"cla",q:"Inconvénient de la SAS ?",o:["Montant élevé du capital de départ","Engage le patrimoine familial","Ne peut pas avoir d'associés","Pas de protection du patrimoine"]},
+
+// ===== STRUCTURE =====
+{c:"str",q:"Les entreprises sont structurées suivant ...",o:["une direction, des fonctions et des services","des clients et des fournisseurs","un capital et un bénéfice","des biens et des services"]},
+{c:"str",q:"Un organigramme est ...",o:["un système de représentation hiérarchisé qui met en évidence les relations entre les services ou les personnes","la liste des clients de l'entreprise","le calcul du bénéfice","le contrat de travail des salariés"]},
+{c:"str",q:"Ton organigramme contient ...",o:["5 fonctions et 10 services","4 fonctions et 8 services","10 fonctions et 5 services","3 fonctions et 9 services"]},
+{c:"str",q:"Quelles sont les 5 fonctions de l'organigramme ?",o:["Direction générale, administrative, achats, technique, commerciale","Marketing, production, gestion, magasin, communication","Clients, fournisseurs, banques, administration, État","Primaire, secondaire, tertiaire, quaternaire, public"]},
+{c:"str",q:"Que fait la direction générale ?",o:["Fixe les objectifs et contrôle leur réalisation, coordonne les services, gère l'administration","Fabrique les produits","Vend les produits aux clients","Gère le stock"]},
+{c:"str",q:"Les 2 services de la fonction administrative ?",o:["Gestion et ressources humaines","Approvisionnement et magasin","Marketing et communication","Production et bureau d'études"]},
+{c:"str",q:"Les 2 services de la fonction achats ?",o:["Approvisionnement et magasin","Gestion et ressources humaines","Marketing et commercialisation","Production et bureau des méthodes"]},
+{c:"str",q:"Les 3 services de la fonction technique ?",o:["Bureau des méthodes, production, bureau d'études","Marketing, commercialisation, communication","Gestion, ressources humaines, magasin","Approvisionnement, magasin, production"]},
+{c:"str",q:"Les 3 services de la fonction commerciale ?",o:["Marketing, commercialisation, communication","Bureau des méthodes, production, bureau d'études","Gestion, ressources humaines, approvisionnement","Magasin, production, communication"]},
+{c:"str",t:"vf",q:"Le marketing organise les campagnes publicitaires et de promotion.",a:1,e:"Faux : c'est la communication. Le marketing étudie les habitudes des consommateurs et crée le besoin."},
+{c:"str",t:"vf",q:"La production fabrique les produits selon les méthodes définies par le bureau de conception.",a:0},
+{c:"str",t:"vf",q:"Le magasin sélectionne les fournisseurs.",a:1,e:"Faux : c'est l'approvisionnement. Le magasin gère le stock et approvisionne les ateliers."},
+
+// ===== ENVIRONNEMENT =====
+{c:"env",q:"Quels sont les 4 partenaires de l'entreprise dans son environnement ?",o:["Fournisseurs, clients, banques, administration","Marketing, production, gestion, magasin","État, communes, ménages, commerces","Actionnaires, salariés, dirigeants, concurrents"]},
+{c:"env",q:"Pourquoi l'entreprise a-t-elle besoin de fournisseurs ?",o:["Elle a besoin de matières premières","Pour financer son fonctionnement","Pour vendre sa production","Pour payer ses impôts"]},
+{c:"env",q:"Une entreprise qui réalise tout ou partie de la production d'une autre entreprise est un ...",o:["sous-traitant","client","actionnaire","ménage"]},
+{c:"env",q:"Pourquoi l'entreprise a-t-elle besoin des banques ?",o:["Pour financer son fonctionnement (hommes, machines, matériel)","Pour acheter des matières premières","Pour vendre sa production","Pour fixer ses objectifs"]},
+{c:"env",q:"Qui fait partie de l'administration, partenaire de l'entreprise ?",o:["L'État et les communes","Les commerces et les ménages","Les fournisseurs et les sous-traitants","Les banques et les assurances"]},
+{c:"env",q:"Quels sont les 2 types de clients ?",o:["Les commerces et les ménages","L'État et les communes","Les banques et les fournisseurs","Les sous-traitants et les actionnaires"]},
+{c:"env",t:"vf",q:"Une entreprise est en contact direct avec le monde extérieur.",a:0},
+{c:"env",q:"Une famille qui achète un vélo chez Décathlon est ...",o:["un client (ménage)","un fournisseur","un sous-traitant","l'administration"]},
+{c:"env",q:"L'entreprise vend sa production à ...",o:["des clients","des fournisseurs","des banques","des sous-traitants"]},
+
+// ===== TABLEAU =====
+{c:"tab",q:"Quelle entreprise PRODUIT DES BIENS (à entourer en bleu) ?",o:["Rossignol (skis)","Coiffeur","Médecin","Taxi"]},
+{c:"tab",q:"Quelle entreprise PRODUIT DES BIENS (à entourer en bleu) ?",o:["Airbus (avions)","Pompes funèbres","Psy","Webdesigner"]},
+{c:"tab",q:"Quelle entreprise PRODUIT DES BIENS (à entourer en bleu) ?",o:["Mercedes (voitures)","Ménage","SNCF","Police"]},
+{c:"tab",q:"Quelle entreprise est du secteur TERTIAIRE (à entourer en vert) ?",o:["Coiffeur","Airbus","Mercedes","Rossignol"]},
+{c:"tab",q:"Quelle entreprise est du secteur TERTIAIRE (à entourer en vert) ?",o:["Taxi","Apple","Décathlon (fabrication de vélos)","Airbus"]},
+{c:"tab",q:"Quelle entreprise est du secteur TERTIAIRE (à entourer en vert) ?",o:["Médecin","Rossignol","Mercedes","Apple"]},
+{c:"tab",q:"Quelle entreprise est PUBLIQUE (à entourer en rouge) ?",o:["SNCF","Coiffeur","Apple","Décathlon"]},
+{c:"tab",q:"Quelle entreprise est PUBLIQUE (à entourer en rouge) ?",o:["EDF","H&M","Mercedes","Webdesigner"]}
+];
+
+// ===== FICHE PROF =====
+Q.push(
+{c:"prof",q:"Qu'est-ce qu'une entreprise (selon la fiche prof) ?",o:["L'activité d'une personne ou d'un groupe de personnes qui travaillent pour fournir des biens ou des services à des clients","Un bâtiment où l'on stocke des marchandises","Un service de l'État qui collecte les impôts","Un groupe d'actionnaires qui achètent en bourse"]},
+{c:"prof",q:"Combien y a-t-il d'entreprises en France ?",o:["Plus de 2 millions","Environ 200 000","Plus de 14 millions","Environ 500"]},
+{c:"prof",q:"Combien de salariés travaillent dans les entreprises en France ?",o:["14 millions","2 millions","500 000","60 millions"]},
+{c:"prof",q:"Quel est l'objectif principal d'une entreprise ?",o:["Satisfaire ses clients pour gagner de l'argent","Payer le moins d'impôts possible","Avoir le plus de salariés possible","Être cotée en bourse"]},
+{c:"prof",q:"Gagner de l'argent permet aussi à l'entreprise de ...",o:["créer des emplois et verser des salaires","ne plus avoir de clients","supprimer ses fournisseurs","devenir une entreprise publique"]},
+{c:"prof",q:"Qui est propriétaire d'une entreprise PUBLIQUE ?",o:["L'État","Un propriétaire individuel","Les clients","Les salariés"]},
+{c:"prof",q:"Qui est propriétaire d'une entreprise PRIVÉE ?",o:["Un propriétaire individuel ou collectif, à but lucratif","L'État","Les communes","Les banques"]},
+{c:"prof",q:"Que veut dire « à but lucratif » ?",o:["Qui cherche à gagner de l'argent","Qui appartient à l'État","Qui ne fait pas de bénéfice","Qui a moins de 10 salariés"]},
+{c:"prof",q:"Quel est le type d'entreprise le plus courant ?",o:["La micro-entreprise ou TPE (92,9 % des entreprises)","La grande entreprise","La moyenne entreprise","L'entreprise publique"]},
+{c:"prof",q:"Exemples de micro-entreprises (TPE) :",o:["Coiffure, serrurier, cordonnier, artisan","Airbus, EDF, SNCF","Banques et assurances","Mercedes, Apple, Nvidia"]},
+{c:"prof",q:"Si le créateur est seul, qui est propriétaire de l'entreprise ?",o:["Le créateur est l'unique propriétaire","L'État","Ses salariés","Ses clients"]},
+{c:"prof",q:"Quand on crée une entreprise à plusieurs, chacun est propriétaire ...",o:["proportionnellement à son apport","à parts égales, quoi qu'il ait apporté","seulement s'il travaille dedans","uniquement s'il est le plus âgé"]},
+{c:"prof",q:"Quel est le problème de monsieur Patrick Turet ?",o:["Il ne trouve pas de fournisseurs compétitifs pour lui fournir des roues de qualité","Il n'a pas assez de clients","Sa banque refuse de lui prêter de l'argent","Il n'a pas de salariés"]},
+{c:"prof",q:"Quelles sont les 5 étapes de mise en place d'un projet, dans l'ordre ?",o:["Étude du projet, définition du projet, mise en place du projet, production et lancement, vente et développement","Production, étude, vente, définition, mise en place","Vente, production, étude, définition, lancement","Définition, vente, étude, production, mise en place"]},
+{c:"prof",q:"Quelle est l'ÉTAPE 1 d'un projet ?",o:["L'étude du projet","La définition du projet","La production et le lancement","La vente et le développement"]},
+{c:"prof",q:"Quelle est l'ÉTAPE 2 d'un projet ?",o:["La définition du projet","L'étude du projet","La mise en place du projet","La vente et le développement"]},
+{c:"prof",q:"Quelle est l'ÉTAPE 3 d'un projet ?",o:["La mise en place du projet","La définition du projet","La production et le lancement","L'étude du projet"]},
+{c:"prof",q:"Quelle est l'ÉTAPE 4 d'un projet ?",o:["La production et le lancement","La mise en place du projet","La vente et le développement","L'étude du projet"]},
+{c:"prof",q:"Quelle est l'ÉTAPE 5 (la dernière) d'un projet ?",o:["La vente et le développement","La production et le lancement","La définition du projet","L'étude du projet"]},
+{c:"prof",q:"À quelle étape décide-t-on de la forme définitive de l'objet ?",o:["Mise en place du projet et production","Étude du projet","Vente et développement","Définition du projet"]},
+{c:"prof",q:"Quel service protège les nouveaux produits de l'entreprise ?",o:["Le service juridique","Le service logistique","Le service commercial","Les ressources humaines"]},
+{c:"prof",q:"Par quels moyens le service juridique protège-t-il les nouveaux produits ?",o:["Le dépôt de brevet et du nom du produit","La publicité","Le stockage au magasin","Le recrutement"]},
+{c:"prof",q:"Quel est le rôle du service logistique ?",o:["Stocker les premières pièces dans le magasin de l'usine, préparer le transport des articles commandés et les acheminer chez les clients","Rédiger les contrats","Fabriquer les produits","Gérer les salaires"]},
+{c:"prof",q:"Dans une entreprise, si l'un ou l'autre ne respecte pas ses engagements ...",o:["l'ensemble de la chaîne s'enraye","rien ne change","l'entreprise gagne plus d'argent","l'État paie à sa place"]},
+{c:"prof",q:"La performance et la survie d'une entreprise sont liées ...",o:["au respect des droits et devoirs de chacun","au nombre de clients uniquement","à la couleur du logo","à la taille du siège social"]},
+{c:"prof",q:"Le cadre des relations entre l'entreprise et les salariés est défini par ...",o:["le code du travail, les conventions collectives et le règlement intérieur","le chiffre d'affaires et le bénéfice","les clients et les fournisseurs","le brevet et le nom du produit"]},
+{c:"prof",q:"Que décrit le contrat de travail ?",o:["Les missions, la rémunération, le lieu et la durée du travail","Le bénéfice de l'entreprise","La liste des clients","Le brevet du produit"]},
+{c:"prof",t:"txt",q:"Le contrat de travail décrit les missions, la ..., le lieu et la durée du travail.",acc:["remuneration","salaire"],r:"la rémunération"},
+{c:"prof",q:"Quels sont les 3 types d'obligations d'une entreprise envers ses employés et l'État ?",o:["Juridique, sociale, fiscale","Commerciale, technique, administrative","Primaire, secondaire, tertiaire","Publique, privée, mixte"]},
+{c:"prof",q:"Quelles sont les obligations de l'entreprise envers ses employés ?",o:["Verser les salaires, assurer la sécurité, respecter le code du travail","Leur donner des actions","Leur acheter une voiture","Leur choisir un logement"]},
+{c:"prof",q:"Faire du développement durable, c'est concilier combien d'objectifs ?",o:["3","2","4","5"]},
+{c:"prof",q:"Quels sont les 3 objectifs du développement durable pour une entreprise ?",o:["Produire des biens ou services, créer des emplois pour que chacun profite de la croissance, protéger l'environnement","Gagner de l'argent, payer moins d'impôts, avoir plus de clients","Acheter, stocker, vendre","Étudier, produire, vendre"]},
+{c:"prof",q:"Pourquoi protéger l'environnement dans le développement durable ?",o:["Par solidarité avec les générations futures","Pour payer moins de salaires","Pour vendre plus cher","Parce que c'est moins cher"]},
+{c:"prof",t:"txt",q:"Que signifient les initiales MEDEF ?",acc:["mouvement+entreprise+france"],r:"Mouvement Des Entreprises De France"}
+);
+var SP=["Direction","Marketing et communication","Recherche et développement","Production","Commercial","Finances et comptabilité","Ressources humaines","Service juridique","Services généraux"];
+[["Décider des orientations",0],["Définir le produit ou le service à vendre",1],["Étudier, tester et essayer",2],["Fabriquer un produit ou un service",3],["Vendre les produits ou services de l'entreprise",4],["Gérer les factures, les finances, les salaires",5],["Organiser et gérer les compétences des hommes et des femmes",6],["Rédiger l'ensemble des contrats de l'entreprise",7],["Assurer la logistique",8]]
+.forEach(function(x){Q.push({c:"prof",q:"Tableau de la fiche prof : quel service doit « "+x[0]+" » ?",pool:SP,a:x[1]});
+ Q.push({c:"prof",q:"Tableau de la fiche prof : quel est le rôle du service « "+SP[x[1]]+" » ?",pool:["Décider des orientations","Définir le produit ou le service à vendre","Étudier, tester et essayer","Fabriquer un produit ou un service","Vendre les produits ou services de l'entreprise","Gérer les factures, les finances, les salaires","Organiser et gérer les compétences des hommes et des femmes","Rédiger l'ensemble des contrats de l'entreprise","Assurer la logistique"],a:x[1]});});
+
+// Questions générées : secteurs
+var SECT=["Primaire","Secondaire","Tertiaire","Quaternaire"];
+[["Un éleveur de vaches",0],["Une exploitation forestière (bois)",0],["Une mine de minerai",0],["Un producteur de légumes",0],["L'extraction de pétrole",0],
+ ["Une usine automobile",1],["Un fabricant d'électroménager",1],["Un fabricant d'avions (Airbus)",1],["Un fabricant de skis (Rossignol)",1],["Un fabricant d'ordinateurs",1],
+ ["Une banque",2],["Une compagnie d'assurance",2],["Un opérateur téléphonique",2],["Un coiffeur",2],["Un médecin",2],["La SNCF (transport)",2],["Un taxi",2],
+ ["Une entreprise de haute technologie à haute valeur ajoutée",3]
+].forEach(function(x){Q.push({c:"cla",q:x[0]+" appartient à quel secteur ?",o:SECT,a:x[1],fix:1});});
+
+// Questions générées : taille
+var TAI=["Micro-entreprise (TPE)","Petite entreprise","Moyenne entreprise","Grande entreprise"];
+[[5,0],[9,0],[10,1],[35,1],[49,1],[50,2],[250,2],[499,2],[500,3],[3000,3]].forEach(function(x){
+ Q.push({c:"cla",q:"Une entreprise de "+x[0]+" salariés est une ...",o:TAI,a:x[1],fix:1});});
+
+// Questions générées : service -> fonction
+var FON=["Direction générale","Fonction administrative","Fonction achats","Fonction technique","Fonction commerciale"];
+[["Gestion",1],["Ressources humaines",1],["Approvisionnement",2],["Magasin",2],["Bureau des méthodes",3],["Production",3],["Bureau d'études",3],["Marketing",4],["Commercialisation",4],["Communication",4]]
+.forEach(function(x){Q.push({c:"str",q:"Le service « "+x[0]+" » appartient à quelle fonction ?",o:FON,a:x[1],fix:1});});
+
+// Questions générées : rôle -> service
+var SRV=["Direction générale","Gestion","Ressources humaines","Approvisionnement","Magasin","Bureau des méthodes","Production","Bureau d'études","Marketing","Commercialisation","Communication"];
+[["Fixe les objectifs à atteindre et contrôle leur réalisation.",0],["Coordonne les activités des principaux services.",0],
+ ["Enregistre les documents comptables (chèques, factures).",1],["S'occupe de l'aspect financier : salaires, paiement des fournisseurs, dépenses, recettes.",1],
+ ["S'occupe du recrutement et de la formation.",2],["Gère les carrières du personnel et assure le respect de la législation du travail.",2],
+ ["Sélectionne les fournisseurs.",3],["Achète les matières premières et fournitures.",3],
+ ["Gère le stock.",4],["Approvisionne les ateliers en matières premières.",4],
+ ["S'intéresse aux techniques de fabrication.",5],["Conçoit de nouveaux outils ou de nouvelles machines.",5],
+ ["Fabrique les produits de l'entreprise.",6],
+ ["Développe de nouveaux produits.",7],["Recherche des solutions techniques et réalise des plans.",7],
+ ["Apporte et crée le besoin du client.",8],["Étudie, grâce à des études de marché, les habitudes des consommateurs.",8],
+ ["Regroupe les personnes qui vendent le produit (représentants, vendeurs en magasin).",9],["Assure le suivi des produits après-vente.",9],
+ ["Organise les campagnes publicitaires et de promotion.",10]
+].forEach(function(x){Q.push({c:"str",q:"Quel service ? « "+x[0]+" »",pool:SRV,a:x[1]});});
+
+Q.forEach(function(q,i){q.id=i; if(q.t==="vf"){q.o=["Vrai","Faux"];q.fix=1;} if(q.a===undefined&&!q.t)q.a=0;});
+
+// ===== ÉTAT =====
+var st={m:{},e:{},best:null};
+try{var s=localStorage.getItem("rev-entreprise");if(s)st=JSON.parse(s);}catch(e){}
+function save(){try{localStorage.setItem("rev-entreprise",JSON.stringify(st));}catch(e){}}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim();}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+var app=document.getElementById("app");
+var run=null;
+
+function home(){
+ run=null;
+ var n=Q.length,m=Object.keys(st.m).length,e=Object.keys(st.e).length,pct=Math.round(m/n*100);
+ var h='<h1>📘 La découverte de l\'entreprise</h1><div class="sub">Révision techno, 3e. Objectif : 20/20 💪</div>';
+ h+='<div class="card"><b>Maîtrise du cours : '+pct+' %</b><div class="bar"><div style="width:'+pct+'%"></div></div><div class="sub" style="margin:0">'+m+' questions réussies sur '+n+(st.best!==null?' · Meilleure note à l\'examen blanc : <b>'+st.best+'/20</b>':'')+'</div></div>';
+ h+='<button class="btn main" onclick="start(\'exam\')">🎯 Examen blanc<small>20 questions au hasard, note sur 20</small></button>';
+ h+='<button class="btn alt" onclick="start(\'all\')">📚 Tout le cours<small>Les '+n+' questions, dans le désordre</small></button>';
+ if(e)h+='<button class="btn red" onclick="start(\'err\')">❌ Refaire mes erreurs ('+e+')<small>Jusqu\'à ce qu\'il n\'en reste plus aucune</small></button>';
+ h+='<button class="btn" onclick="start(\'new\')">⭐ Questions pas encore réussies ('+(n-m)+')</button>';
+ h+='<h2>Par partie</h2>';
+ Object.keys(CH).forEach(function(k){var tot=Q.filter(function(q){return q.c===k;}),ok=tot.filter(function(q){return st.m[q.id];}).length;
+  h+='<button class="btn" onclick="start(\'ch\',\''+k+'\')">'+CH[k]+'<small>'+ok+' / '+tot.length+' réussies</small></button>';});
+ h+='<h2>Le cours</h2><button class="btn" onclick="fiche()">📖 Fiche de révision complète</button>';
+ h+='<div class="center"><button class="link" onclick="resetAll()">Remettre à zéro ma progression</button></div>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+function resetAll(){
+ app.innerHTML='<div class="card center"><p><b>Effacer toute ta progression ?</b></p><div class="row"><button class="btn red" onclick="st={m:{},e:{},best:null};save();home()">Oui, effacer</button><button class="btn" onclick="home()">Annuler</button></div></div>';
+}
+function start(mode,ch){
+ var l=Q;
+ if(mode==="err")l=Q.filter(function(q){return st.e[q.id];});
+ if(mode==="new")l=Q.filter(function(q){return !st.m[q.id];});
+ if(mode==="ch")l=Q.filter(function(q){return q.c===ch;});
+ l=shuf(l);
+ if(mode==="exam"){ // équilibré entre les parties
+  var by={};l.forEach(function(q){(by[q.c]=by[q.c]||[]).push(q);});
+  var want={def:5,cla:5,str:3,env:2,tab:1,prof:4},pick=[];
+  Object.keys(want).forEach(function(k){pick=pick.concat((by[k]||[]).slice(0,want[k]));});
+  l=shuf(pick);
+ }
+ if(!l.length){app.innerHTML='<div class="card center"><p>🎉 Rien à réviser ici, tout est réussi !</p><button class="btn main" onclick="home()">Retour</button></div>';return;}
+ run={mode:mode,list:l,i:0,score:0,wrong:[]};
+ show();
+}
+function show(){
+ var q=run.list[run.i];run.done=false;
+ var h='<div class="top"><button class="link" onclick="home()">← Accueil</button><span>'+(run.i+1)+' / '+run.list.length+' · ✅ '+run.score+'</span></div>';
+ h+='<div class="bar"><div style="width:'+(run.i/run.list.length*100)+'%"></div></div>';
+ h+='<div class="card"><span class="tag">'+CH[q.c]+'</span><div class="q">'+esc(q.q)+'</div>';
+ if(q.t==="txt"){
+  h+='<div class="sub" style="margin:4px 0 10px">✍️ Écris la réponse (les accents ne comptent pas)</div><input type="text" id="inp" autocomplete="off" autocapitalize="off"><button class="btn main" style="text-align:center" onclick="checkTxt()">Valider</button>';
+ }else{
+  var opts;
+  if(q.pool){var others=shuf(q.pool.map(function(_,i){return i;}).filter(function(i){return i!==q.a;})).slice(0,3);opts=shuf([q.a].concat(others));run.cur=opts.map(function(i){return {txt:q.pool[i],ok:i===q.a};});}
+  else{opts=q.o.map(function(t,i){return {txt:t,ok:i===q.a};});run.cur=q.fix?opts:shuf(opts);}
+  run.cur.forEach(function(o,i){h+='<button class="opt" id="o'+i+'" onclick="pick('+i+')">'+esc(o.txt)+'</button>';});
+ }
+ h+='<div id="fb"></div></div>';
+ app.innerHTML=h;window.scrollTo(0,0);
+ var inp=document.getElementById("inp");if(inp){inp.focus();inp.addEventListener("keydown",function(ev){if(ev.key==="Enter")checkTxt();});}
+}
+function goodText(q){return q.t==="txt"?q.r:(q.pool?q.pool[q.a]:q.o[q.a]);}
+function pick(i){
+ if(run.done)return;run.done=true;
+ var ok=run.cur[i].ok;
+ run.cur.forEach(function(o,j){var b=document.getElementById("o"+j);b.disabled=true;if(o.ok)b.classList.add("ok");else if(j===i)b.classList.add("ko");});
+ result(ok);
+}
+function checkTxt(){
+ if(run.done)return;var q=run.list[run.i];var v=norm(document.getElementById("inp").value);
+ if(!v)return;run.done=true;document.getElementById("inp").disabled=true;
+ var ok=q.acc.some(function(a){return a.split("+").every(function(k){return v.indexOf(norm(k))>=0;});});
+ result(ok,true);
+}
+function result(ok,txt){
+ var q=run.list[run.i];record(q.id,ok);
+ if(ok)run.score++;else run.wrong.push(q);
+ var h='<div class="fb '+(ok?'ok':'ko')+'">'+(ok?'✅ <b>Bravo !</b>':'❌ <b>Pas tout à fait.</b>')+(!ok||txt?' Réponse : <b>'+esc(goodText(q))+'</b>':'')+(q.e?'<br>'+esc(q.e):'')+'</div>';
+ if(!ok&&txt)h+='<button class="link" onclick="override()">J\'avais écrit la même chose avec d\'autres mots : compter juste</button>';
+ h+='<button class="btn main" style="text-align:center;margin-top:12px" onclick="next()">'+(run.i+1<run.list.length?'Question suivante →':'Voir mon résultat')+'</button>';
+ document.getElementById("fb").innerHTML=h;
+ document.getElementById("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function override(){var q=run.list[run.i];record(q.id,true);run.score++;run.wrong.pop();
+ document.getElementById("fb").querySelector(".fb").className="fb ok";var l=document.querySelector("#fb .link");if(l)l.remove();}
+function record(id,ok){if(ok){st.m[id]=1;delete st.e[id];}else{delete st.m[id];st.e[id]=1;}save();}
+function next(){run.i++;if(run.i<run.list.length)show();else end();}
+function end(){
+ var n=run.list.length,s=run.score,note=Math.round(s/n*20*2)/2;
+ if(run.mode==="exam"&&(st.best===null||note>st.best)){st.best=note;save();}
+ var msg=note>=20?"🏆 PARFAIT ! Tu maîtrises tout !":note>=16?"🔥 Très bien ! Encore un petit effort pour le 20/20.":note>=12?"👍 C'est bien, refais tes erreurs.":"💪 Relis la fiche puis recommence.";
+ var h='<div class="card center"><div class="sub" style="margin:0">Ta note</div><div class="big">'+note+'/20</div><div>'+s+' bonnes réponses sur '+n+'</div><p><b>'+msg+'</b></p></div>';
+ if(run.wrong.length){h+='<h2>À retenir ('+run.wrong.length+')</h2>';run.wrong.forEach(function(q){h+='<div class="wrong">'+esc(q.q)+'<br>→ <b>'+esc(goodText(q))+'</b></div>';});
+  h+='<button class="btn red" style="text-align:center" onclick="start(\'err\')">Refaire mes erreurs</button>';}
+ h+='<button class="btn main" style="text-align:center" onclick="start(\'exam\')">Nouvel examen blanc</button><button class="btn" style="text-align:center" onclick="home()">Accueil</button>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+function fiche(){
+ var h='<div class="top"><button class="link" onclick="home()">← Accueil</button></div><div class="card fiche"><h1>📖 Fiche de révision</h1>';
+ h+='<h3>I. Définitions</h3><ul>';
+ h+='<li><b>Entreprise</b> : un <b>ensemble de moyens</b> (personnel et capital), réunis et organisés, destinés à <b>produire et commercialiser des biens et/ou des services</b> qui seront vendus pour réaliser <b>des bénéfices</b>.</li>';
+ h+='<li>Son <b>nom</b> = sa <b>raison sociale</b>. Son <b>adresse</b> = son <b>siège social</b>.</li>';
+ h+='<li>Environnement concurrentiel = <b>le marché</b> (offre et demande). Non concurrentiel = <b>le monopole</b>.</li>';
+ h+='<li><b>Bien</b> : un <b>produit</b> ou un <b>objet</b>, concret, qu\'on peut toucher et stocker. Biens de consommation (alimentation, papier, carburant) et d\'équipement (voitures, réfrigérateurs, machines).</li>';
+ h+='<li><b>Service</b> : le <b>résultat d\'une activité</b>, pas matériel mais avec une valeur économique. Pas de stockage : production et consommation simultanées (transporter, divertir, assurer, nourrir). On ne peut pas le toucher.</li>';
+ h+='<li>Biens et services répondent à un <b>besoin</b>, constituent une <b>offre</b> qui répond à la <b>demande</b>.</li>';
+ h+='<li><b>Capital</b> : des <b>fonds</b> à long terme <b>investis</b> par les dirigeants ou les actionnaires.</li>';
+ h+='<li><b>Chiffre d\'affaires</b> : la <b>somme des ventes</b> de biens ou de services, <b>hors taxes</b>.</li>';
+ h+='<li><b>Bénéfice</b> = <b>CA moins les charges</b> (fournisseurs, salaires, impôts). C\'est ce qui <b>reste à l\'entreprise</b> pour investir, placer, rémunérer les dirigeants (dividendes aux actionnaires).</li></ul>';
+ h+='<h3>II. Classification (4 critères)</h3><p>Secteur d\'activité, taille, composition du capital, forme juridique.</p>';
+ h+='<p><b>1. Secteurs (Colin Clark, économiste anglais)</b></p><ul><li><b>Primaire</b> : matières premières (bois, pétrole, minerai, légumes, élevage)</li><li><b>Secondaire</b> : industrie, transformation (automobile, électroménager, informatique)</li><li><b>Tertiaire</b> : services (assurance, banque, opérateur)</li><li><b>Quaternaire</b> : haute technologie à haute valeur ajoutée</li></ul><p>Une entreprise peut avoir plusieurs activités (Darty : commerce + service).</p>';
+ h+='<p><b>2. Capital</b></p><ul><li><b>Public</b> : <b>l\'État</b> possède tout ou au moins 50 % (SNCF, EDF)</li><li><b>Privé</b> : la majorité est détenue par des <b>actionnaires privés</b> (individu ou entreprise)</li></ul>';
+ h+='<p><b>3. Taille</b></p><table><tr><th>Salariés</th><th>Type</th><th>% entreprises</th><th>% salariés</th></tr><tr><td>0 à 9</td><td>Micro (TPE)</td><td>92,9 %</td><td>20,6 %</td></tr><tr><td>10 à 49</td><td>Petite</td><td>5,9 %</td><td>21,7 %</td></tr><tr><td>50 à 499</td><td>Moyenne</td><td>1,1 %</td><td>25,2 %</td></tr><tr><td>500 et +</td><td>Grande</td><td>0,1 %</td><td>32,5 %</td></tr></table><p>Petites et moyennes = <b>PME ou PMI</b>.</p>';
+ h+='<p><b>4. Forme juridique</b></p><ul><li><b>EURL</b> : Entreprise Unipersonnelle à Responsabilité Limitée</li><li><b>SARL</b> : Société À Responsabilité Limitée</li><li><b>SA</b> : Société Anonyme</li><li><b>SAS</b> : Société par Actions Simplifiée</li></ul>';
+ h+='<table><tr><th></th><th>Capital</th><th>Associés</th><th>Impôt</th><th>+</th><th>−</th></tr>';
+ h+='<tr><td><b>EI</b></td><td>Néant</td><td>1 seul</td><td>Revenu</td><td>Pas de statut, pas de capital min.</td><td>Engage le patrimoine familial</td></tr>';
+ h+='<tr><td><b>EURL</b></td><td>Pas de min.</td><td>1 seul</td><td>Sociétés ou revenu</td><td>Se transforme facilement en SA</td><td>Inadaptée au développement</td></tr>';
+ h+='<tr><td><b>SARL</b></td><td>1 €</td><td>2 à 50</td><td>Sociétés ou revenu</td><td>Se transforme facilement en SA</td><td>Inadaptée au développement</td></tr>';
+ h+='<tr><td><b>SA</b></td><td>37 000 €</td><td>7 min.</td><td>Sociétés</td><td>Bourse, mouvement de capitaux</td><td>Capital élevé, complexe</td></tr>';
+ h+='<tr><td><b>SAS</b></td><td>37 000 €</td><td>7 min.</td><td>Sociétés</td><td>Plus simple que la SA, patrimoine protégé</td><td>Capital élevé</td></tr></table>';
+ h+='<div class="note">💡 À l\'examen, écris les chiffres de ta fiche (c\'est ce que ton prof attend).</div>';
+ h+='<h3>III. Structure</h3><p>Direction + fonctions + services. <b>Organigramme</b> : représentation hiérarchisée des relations entre services ou personnes.</p><ul>';
+ h+='<li><b>Direction générale</b> : fixe les objectifs et contrôle, coordonne, gestion administrative</li>';
+ h+='<li><b>Administrative</b> : <b>Gestion</b> (comptabilité, salaires, fournisseurs) + <b>Ressources humaines</b> (recrutement, formation, carrières, droit du travail)</li>';
+ h+='<li><b>Achats</b> : <b>Approvisionnement</b> (choisit les fournisseurs, achète) + <b>Magasin</b> (stock, approvisionne les ateliers)</li>';
+ h+='<li><b>Technique</b> : <b>Bureau des méthodes</b> (techniques de fabrication, nouveaux outils) + <b>Production</b> (fabrique) + <b>Bureau d\'études</b> (nouveaux produits, plans)</li>';
+ h+='<li><b>Commerciale</b> : <b>Marketing</b> (crée le besoin, études de marché) + <b>Commercialisation</b> (vend, après-vente) + <b>Communication</b> (publicité, promotion)</li></ul>';
+ h+='<h3>IV. Environnement</h3><ul><li><b>Fournisseurs</b> : matières premières, parfois <b>sous-traitants</b></li><li><b>Clients</b> : <b>commerces</b> et <b>ménages</b></li><li><b>Banques</b> : financent le fonctionnement (hommes, machines, matériel)</li><li><b>Administration</b> : <b>l\'État et les communes</b></li></ul>';
+ h+='<h3>Exercice du tableau</h3><ul><li>🔵 Biens : H&M, Rossignol, Décathlon, Mercedes, Airbus, Apple</li><li>🟢 Tertiaire : SNCF, pompes funèbres, ménage, médecin, psy, coiffeur, taxi, webdesigner</li><li>🔴 Publiques : SNCF, EDF, police</li></ul>';
+ h+='<h3>V. Fiche prof : qu\'est-ce que l\'entreprise</h3><ul>';
+ h+='<li><b>Entreprise</b> : l\'activité d\'une personne ou d\'un groupe de personnes qui travaillent pour fournir des biens ou des services à des clients.</li>';
+ h+='<li>En France : <b>plus de 2 millions</b> d\'entreprises, <b>14 millions</b> de salariés.</li>';
+ h+='<li><b>Objectif</b> : satisfaire ses clients pour gagner de l\'argent. Cela permet de créer des emplois et verser des salaires.</li>';
+ h+='<li><b>Publique</b> : propriétaire = l\'État. <b>Privée</b> : propriétaire individuel ou collectif, à but lucratif.</li>';
+ h+='<li>Le plus courant : la <b>micro-entreprise (TPE), 92,9 %</b> (coiffure, serrurier, cordonnier, artisan).</li>';
+ h+='<li><b>Propriété</b> : seul, le créateur est l\'unique propriétaire. À plusieurs, chacun est propriétaire <b>proportionnellement à son apport</b>.</li></ul>';
+ h+='<table><tr><th>Service</th><th>Rôle</th></tr><tr><td>Direction</td><td>Décider des orientations</td></tr><tr><td>Marketing et communication</td><td>Définir le produit ou le service à vendre</td></tr><tr><td>Recherche et développement</td><td>Étudier, tester et essayer</td></tr><tr><td>Production</td><td>Fabriquer un produit ou un service</td></tr><tr><td>Commercial</td><td>Vendre les produits ou services</td></tr><tr><td>Finances et comptabilité</td><td>Gérer les factures, les finances, les salaires</td></tr><tr><td>Ressources humaines</td><td>Organiser et gérer les compétences des hommes et des femmes</td></tr><tr><td>Service juridique</td><td>Rédiger l\'ensemble des contrats</td></tr><tr><td>Services généraux</td><td>Assurer la logistique</td></tr></table><ul>';
+ h+='<li><b>Patrick Turet</b> : ne trouve pas de fournisseurs compétitifs pour lui fournir des roues de qualité.</li>';
+ h+='<li><b>5 étapes d\'un projet</b> : 1. étude du projet, 2. définition du projet, 3. mise en place du projet, 4. production et lancement, 5. vente et développement.</li>';
+ h+='<li>Forme définitive de l\'objet : à la <b>mise en place du projet et production</b>.</li>';
+ h+='<li>Le <b>service juridique</b> protège les nouveaux produits : <b>dépôt de brevet et du nom</b> du produit.</li>';
+ h+='<li><b>Logistique</b> : stocke les premières pièces dans le magasin de l\'usine, prépare le transport des articles commandés et les achemine chez les clients.</li>';
+ h+='<li>Chacun a un rôle et une part de responsabilité. Si l\'un ne respecte pas ses engagements, <b>toute la chaîne s\'enraye</b>. La performance et la survie dépendent du <b>respect des droits et devoirs</b> de chacun.</li>';
+ h+='<li>Relations entreprise/salariés : <b>code du travail, conventions collectives, règlement intérieur</b>. Le <b>contrat de travail</b> décrit missions, rémunération, lieu et durée du travail.</li>';
+ h+='<li><b>Obligations</b> envers employés et État : <b>juridique, sociale, fiscale</b>. Verser les salaires, assurer la sécurité, respecter le code du travail.</li>';
+ h+='<li><b>Développement durable</b> : concilier 3 objectifs : produire des biens ou services, créer des emplois pour que chacun profite de la croissance, protéger l\'environnement par solidarité avec les générations futures.</li>';
+ h+='<li><b>MEDEF</b> : Mouvement Des Entreprises De France.</li></ul>';
+ h+='</div><button class="btn main" style="text-align:center" onclick="start(\'exam\')">Je me teste 🎯</button>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+home();
+</script>
+</body>
+</html>
