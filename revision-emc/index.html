@@ -300,6 +300,7 @@ var DAT=[["1789","Déclaration des droits de l'homme et du citoyen"],["1905","Lo
 DAT.forEach(function(d,i){Q.push({c:"rep",q:"Que s'est-il passé en "+d[0]+" ?",pool:DAT.map(function(x){return x[1];}),a:i});
  Q.push({c:"rep",q:"En quelle année : "+d[1]+" ?",pool:DAT.map(function(x){return x[0];}),a:i});});
 
+var _k=0;Object.keys(CH).forEach(function(c){Q.forEach(function(q){if(q.c===c){_k++;q.s=(_k%2)?1:2;}});});
 Q.forEach(function(q,i){q.id=i; if(q.t==="vf"){q.o=["Vrai","Faux"];q.fix=1;} if(q.a===undefined&&!q.t)q.a=0;});
 
 // ===== ÉTAT =====
@@ -363,7 +364,8 @@ function home(){
  if(r)h+='<button class="btn red" onclick="resume()">▶️ Reprendre ma série en cours<small>Il reste '+(r.ids.length-r.i)+' question(s) à valider</small></button>';
  h+='<div class="note">🔁 Règle : une question ratée revient à la fin de la série. On ne termine que quand <b>tout</b> est juste.</div>';
  h+='<button class="btn main" onclick="start(\'exam\')">🎯 Examen blanc<small>20 questions sur tout le chapitre, note sur 20 (1er essai)</small></button>';
- h+='<button class="btn alt" onclick="start(\'all\')">📚 Tout le cours<small>Les '+n+' questions, dans le désordre</small></button>';
+ [1,2].forEach(function(k){var l=Q.filter(function(q){return q.s===k;}),ok=l.filter(function(q){return st.m[q.id];}).length;
+  h+='<button class="btn alt" onclick="start(\'s'+k+'\')">📚 Tout le cours, série '+k+'<small>'+l.length+' questions sur tout le chapitre · '+ok+' / '+l.length+' réussies</small></button>';});
  if(e)h+='<button class="btn red" onclick="start(\'err\')">❌ Refaire mes erreurs ('+e+')<small>Jusqu\'à ce qu\'il n\'en reste plus aucune</small></button>';
  h+='<button class="btn" onclick="start(\'new\')">⭐ Questions pas encore réussies ('+(n-m)+')</button>';
  h+='<h2>Par partie</h2>';
@@ -382,6 +384,7 @@ function start(mode,ch){
  if(mode==="err")l=Q.filter(function(q){return st.e[q.id];});
  if(mode==="new")l=Q.filter(function(q){return !st.m[q.id];});
  if(mode==="ch")l=Q.filter(function(q){return q.c===ch;});
+ if(mode==="s1"||mode==="s2"){var sn=+mode[1];l=Q.filter(function(q){return q.s===sn;});}
  l=shuf(l);
  if(mode==="exam"){
   var by={};l.forEach(function(q){(by[q.c]=by[q.c]||[]).push(q);});
