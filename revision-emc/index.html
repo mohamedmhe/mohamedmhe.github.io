@@ -391,8 +391,7 @@ function home(){
  Object.keys(CH).forEach(function(k){var tot=Q.filter(function(q){return q.c===k;}),ok=tot.filter(function(q){return st.m[q.id];}).length;
   h+='<button class="btn" onclick="start(\'ch\',\''+k+'\')">'+CH[k]+(k==="bonus"?' ✨':'')+'<small>'+ok+' / '+tot.length+' réussies'+(k==="bonus"?' · hors liste du prof, pas dans l\'examen blanc':'')+'</small></button>';});
  h+='<h2>Le cours</h2><button class="btn" onclick="profPage()">✅ Ce que le prof va évaluer</button><button class="btn" onclick="fiche()">📖 Fiche de révision complète</button>';
- h+='<button class="btn" onclick="fbPage()">💬 Mes retours sur les questions ('+allFb().length+')</button>';
- h+='<div class="center"><button class="link" onclick="resetAll()">Remettre à zéro ma progression</button></div>';
+  h+='<div class="center"><button class="link" onclick="resetAll()">Remettre à zéro ma progression</button></div>';
  app.innerHTML=h;window.scrollTo(0,0);
 }
 function resetAll(){
@@ -426,7 +425,7 @@ function quitAsk(){
  document.getElementById("quitbox").innerHTML='<div class="card" style="background:#fff5f5"><b>✋ Pas si vite !</b><p style="margin:6px 0">Il reste <b>'+left+'</b> question(s) à valider. Ta série est gardée : tu pourras la reprendre depuis l\'accueil.</p><div class="row"><button class="btn main" onclick="document.getElementById(\'quitbox\').innerHTML=\'\'">Je continue 💪</button><button class="btn" onclick="saveRun();home()">Faire une pause</button></div></div>';
 }
 function show(){
- var q=run.list[run.i];run.done=false;
+ var q=run.list[run.i];run.done=false;run.view=0;if(!run.hist)run.hist=[];
  var unique=Object.keys(run.tried).length,first=!run.tried[q.id];
  var left=run.list.length-run.i;
  var h='<div class="top"><button class="link" onclick="quitAsk()">⏸ Pause</button><span>Reste à valider : <b>'+left+'</b> · ✅ '+run.score+'</span></div>';
@@ -441,13 +440,13 @@ function show(){
   else{opts=q.o.map(function(t,i){return {txt:t,ok:i===q.a};});run.cur=q.fix?opts:shuf(opts);}
   run.cur.forEach(function(o,i){h+='<button class="opt" id="o'+i+'" onclick="pick('+i+')">'+esc(o.txt)+'</button>';});
  }
- h+='<div id="fb"></div><div class="center"><button class="link" onclick="openFb()">💬 Faire un retour sur cette question</button></div><div id="fbbox"></div></div>';
+ h+='<div id="fb"></div>'+(run.hist&&run.hist.length?'<button class="btn" id="prevbtn" style="text-align:center" onclick="prevQ()">← Question précédente</button>':'')+'</div>';
  app.innerHTML=h;window.scrollTo(0,0);
  var inp=document.getElementById("inp");if(inp){inp.focus();inp.addEventListener("keydown",function(ev){if(ev.key==="Enter")checkTxt();});}
 }
 function goodText(q){return q.t==="txt"?q.r:(q.pool?q.pool[q.a]:q.o[q.a]);}
 function pick(i){
- if(run.done)return;run.done=true;
+ if(run.done)return;run.done=true;run.lastPick=i;
  var ok=run.cur[i].ok;
  run.cur.forEach(function(o,j){var b=document.getElementById("o"+j);b.disabled=true;if(o.ok)b.classList.add("ok");else if(j===i)b.classList.add("ko");});
  result(ok);
@@ -460,6 +459,7 @@ function checkTxt(){
 }
 function result(ok,txt){
  var q=run.list[run.i];var first=!run.tried[q.id];run.tried[q.id]=1;run.lastFirst=first;
+ if(!run.hist)run.hist=[];var inpE=document.getElementById("inp");run.hist.push({id:q.id,cur:txt?null:run.cur,pick:run.lastPick,typed:txt&&inpE?inpE.value:null,ok:ok});
  record(q.id,ok);
  if(ok){if(first)run.score++;}
  else{if(first)run.wrong.push(q);run.list.push(q);}
@@ -467,15 +467,32 @@ function result(ok,txt){
  var h='<div class="fb '+(ok?'ok':'ko')+'">'+(ok?'✅ <b>Bravo !</b>':'❌ <b>Pas tout à fait.</b>')+(!ok||txt?' Réponse : <b>'+esc(goodText(q))+'</b>':'')+(q.e?'<br>'+esc(q.e):'')+(ok?'':'<br>🔁 Cette question reviendra à la fin.')+'</div>';
  if(!ok&&txt)h+='<button class="link" onclick="override()">J\'avais écrit la même chose avec d\'autres mots : compter juste</button>';
  h+='<button class="btn main" style="text-align:center;margin-top:12px" onclick="next()">'+(run.i+1<run.list.length?'Question suivante →':'Voir mon résultat')+'</button>';
+ if(run.hist.length>1)h+='<button class="btn" style="text-align:center" onclick="prevQ(2)">← Question précédente</button>';
  document.getElementById("fb").innerHTML=h;
+ var pb=document.getElementById("prevbtn");if(pb&&pb.remove)pb.remove();
  document.getElementById("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
-function override(){var q=run.list[run.i];record(q.id,true);
+function override(){var q=run.list[run.i];record(q.id,true);if(run.hist.length)run.hist[run.hist.length-1].ok=true;
  if(run.lastFirst){run.score++;run.wrong.pop();}
  run.list.pop();saveRun();
  var f=document.getElementById("fb");f.querySelector(".fb").className="fb ok";f.querySelector(".fb").innerHTML='✅ <b>Compté juste.</b> Réponse : <b>'+esc(goodText(q))+'</b>';
  var l=f.querySelector(".link");if(l)l.remove();
  var b=f.querySelector(".btn");if(b)b.textContent=(run.i+1<run.list.length?'Question suivante →':'Voir mon résultat');}
+function prevQ(back){
+ // back = nombre de pas en arrière depuis la fin de l'historique (1 = dernière question répondue)
+ run.view=(run.view||0)+(back||1);if(run.view>run.hist.length)run.view=run.hist.length;
+ var e=run.hist[run.hist.length-run.view],q=Q[e.id];
+ var h='<div class="top"><span>👀 Question précédente</span><span>Reste à valider : <b>'+(run.list.length-run.i)+'</b></span></div>';
+ h+='<div class="card"><span class="tag">'+CH[q.c]+'</span> <span class="tag" style="background:#fff3bf;color:#8a6d00">Déjà répondue</span><div class="q">'+esc(q.q)+'</div>';
+ if(e.cur){e.cur.forEach(function(o,j){h+='<button class="opt '+(o.ok?'ok':(j===e.pick?'ko':''))+'" disabled>'+esc(o.txt)+'</button>';});}
+ else{h+='<div class="opt '+(e.ok?'ok':'ko')+'">Tu as écrit : <b>'+esc(e.typed||"")+'</b></div>';}
+ h+='<div class="fb '+(e.ok?'ok':'ko')+'">'+(e.ok?'✅ Tu avais bon.':'❌ Tu t\'étais trompé, elle revient à la fin.')+' Réponse : <b>'+esc(goodText(q))+'</b>'+(q.e?'<br>'+esc(q.e):'')+'</div>';
+ if(run.view<run.hist.length)h+='<button class="btn" style="text-align:center" onclick="prevQ(1)">← Encore avant</button>';
+ if(run.view>1)h+='<button class="btn" style="text-align:center" onclick="run.view-=2;prevQ(1)">Question suivante (déjà répondue) →</button>';
+ h+='<button class="btn main" style="text-align:center" onclick="backToCurrent()">'+(run.done?'Continuer la série →':'Revenir à la question en cours →')+'</button></div>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+function backToCurrent(){run.view=0;if(run.done)next();else show();}
 function record(id,ok){if(ok){st.m[id]=1;delete st.e[id];}else{delete st.m[id];st.e[id]=1;}save();}
 function next(){run.i++;saveRun();if(run.i<run.list.length)show();else end();}
 function end(){
