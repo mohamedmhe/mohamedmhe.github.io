@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Révision EMC : les règles du jeu démocratique</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f3f5fa;color:#1d2433;line-height:1.45}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:22px;margin:6px 0 4px}
+h2{font-size:18px;margin:22px 0 8px}
+.sub{color:#5b6476;font-size:14px;margin-bottom:16px}
+.card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(20,30,60,.07);margin-bottom:14px}
+.btn{display:block;width:100%;text-align:left;border:none;border-radius:14px;padding:14px 16px;margin:8px 0;font-size:16px;cursor:pointer;background:#fff;color:#1d2433;box-shadow:0 1px 4px rgba(20,30,60,.08);font-family:inherit}
+.btn:active{transform:scale(.99)}
+.btn.main{background:#3b5bdb;color:#fff;font-weight:600}
+.btn.alt{background:#e8ecfb;color:#2b3f9e;font-weight:600}
+.btn.red{background:#ffe3e3;color:#a61e1e;font-weight:600}
+.btn small{display:block;font-weight:400;opacity:.8;font-size:13px;margin-top:2px}
+.row{display:flex;gap:8px}
+.row .btn{text-align:center}
+.bar{height:10px;background:#e3e7f0;border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.bar>div{height:100%;background:linear-gradient(90deg,#37b24d,#69db7c);transition:width .3s}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;background:#e8ecfb;color:#2b3f9e}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:14px;color:#5b6476}
+.q{font-size:18px;font-weight:600;margin:12px 0 6px}
+.opt{display:block;width:100%;text-align:left;border:2px solid #e3e7f0;background:#fff;border-radius:12px;padding:12px 14px;margin:8px 0;font-size:16px;cursor:pointer;font-family:inherit;color:#1d2433}
+.opt.ok{border-color:#37b24d;background:#ebfbee}
+.opt.ko{border-color:#f03e3e;background:#fff5f5}
+.opt:disabled{cursor:default}
+input[type=text]{width:100%;font-size:17px;padding:12px 14px;border-radius:12px;border:2px solid #d0d6e2;font-family:inherit}
+input[type=text]:focus{outline:none;border-color:#3b5bdb}
+.fb{margin-top:12px;padding:12px 14px;border-radius:12px;font-size:15px}
+.fb.ok{background:#ebfbee;color:#1f6b2c}
+.fb.ko{background:#fff5f5;color:#9b1c1c}
+.big{font-size:52px;font-weight:800;text-align:center;margin:6px 0}
+.center{text-align:center}
+.wrong{border-left:4px solid #f03e3e;padding:8px 10px;margin:8px 0;background:#fff;border-radius:8px;font-size:14px}
+.wrong b{color:#1f6b2c}
+.fiche h3{margin:18px 0 6px;font-size:16px;color:#2b3f9e}
+.fiche ul,.fiche ol{margin:4px 0;padding-left:20px}
+.fiche li{margin:4px 0}
+.note{background:#fff9db;border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}
+td,th{border:1px solid #dfe3ec;padding:6px;vertical-align:top}
+th{background:#f1f3f9}
+.link{background:none;border:none;color:#3b5bdb;font-size:15px;cursor:pointer;padding:6px 0;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+var CH={rep:"Démocratie, République, Constitution",pou:"Les 3 pouvoirs et les institutions",txt:"Les textes fondamentaux",qpc:"La QPC et la justice",loi:"Le parcours d'une loi",enq:"La commission d'enquête (TikTok)",lai:"La laïcité et les valeurs",eu:"L'Europe"};
+
+var Q=[
+// ===== DEMOCRATIE / REPUBLIQUE / CONSTITUTION =====
+{c:"rep",q:"Qu'est-ce que la démocratie ?",o:["C'est le peuple qui gouverne","C'est un roi qui gouverne","C'est l'armée qui gouverne","C'est un seul parti qui gouverne"]},
+{c:"rep",t:"txt",q:"Démocratie : c'est le ... qui gouverne.",acc:["peuple"],r:"le peuple"},
+{c:"rep",q:"Qu'est-ce qu'une constitution ?",o:["Un texte qui fixe l'organisation des pouvoirs","Une loi sur les impôts","Un jugement d'un tribunal","Un traité européen"]},
+{c:"rep",t:"txt",q:"Constitution : c'est un texte qui fixe l'organisation des ...",acc:["pouvoir"],r:"des pouvoirs"},
+{c:"rep",q:"En quelle année a été adoptée la Constitution de la Ve République ?",o:["1958","1946","1789","1905"]},
+{c:"rep",t:"txt",q:"La Constitution de la Ve République a été adoptée en ... (année)",acc:["1958"],r:"1958"},
+{c:"rep",q:"Qu'est-ce qu'une République ?",o:["Un régime politique où le dirigeant est élu par le peuple et gouverne au nom du peuple","Un régime où le pouvoir se transmet de père en fils","Un régime où les juges font les lois","Un pays qui fait partie de l'Union européenne"]},
+{c:"rep",t:"txt",q:"République : régime politique où le dirigeant est ... par le peuple et il gouverne au ... du peuple.",acc:["elu+nom"],r:"élu par le peuple, au nom du peuple"},
+{c:"rep",q:"La Constitution est ...",o:["la règle la plus importante de la France","une loi comme les autres","un règlement européen","un décret du gouvernement"]},
+{c:"rep",q:"Que doivent faire toutes les autres lois vis-à-vis de la Constitution ?",o:["La respecter","La remplacer","L'ignorer","La modifier chaque année"]},
+{c:"rep",q:"Quels droits la Constitution garantit-elle par exemple ?",o:["La liberté d'expression, l'égalité devant la loi, le droit de vote","Le droit de ne pas payer d'impôts","Le droit de désobéir aux lois","Le droit de choisir ses juges"]},
+{c:"rep",q:"Pourquoi la Constitution répartit-elle les pouvoirs ?",o:["Pour éviter qu'une seule personne décide de tout","Pour que le président décide de tout","Pour supprimer le Parlement","Pour que les juges votent les lois"]},
+{c:"rep",t:"vf",q:"La Constitution organise les pouvoirs et les répartit pour éviter qu'une seule personne décide de tout.",a:0},
+{c:"rep",t:"vf",q:"Une loi peut être contraire à la Constitution sans problème.",a:1,e:"Faux : toutes les lois doivent respecter la Constitution. Sinon, le Conseil constitutionnel peut la supprimer."},
+
+// ===== POUVOIRS =====
+{c:"pou",q:"Quels sont les 3 pouvoirs ?",o:["Exécutif, législatif, judiciaire","Exécutif, européen, municipal","Militaire, religieux, judiciaire","Président, ministre, maire"]},
+{c:"pou",q:"Qui exerce le pouvoir EXÉCUTIF ?",o:["Le Président de la République et le Gouvernement","Le Parlement (Assemblée nationale et Sénat)","Les juges","Le Conseil constitutionnel"]},
+{c:"pou",q:"Qui exerce le pouvoir LÉGISLATIF ?",o:["Le Parlement : Assemblée nationale et Sénat","Le Président et le Gouvernement","Les juges","La Cour des comptes"]},
+{c:"pou",q:"Qui exerce le pouvoir JUDICIAIRE ?",o:["Les juges","Le Parlement","Le Président","Les ministres"]},
+{c:"pou",q:"Que fait le pouvoir exécutif ?",o:["Il dirige le pays et fait appliquer les lois","Il vote les lois et le budget","Il juge en fonction des lois","Il contrôle l'argent public"]},
+{c:"pou",q:"Que fait le pouvoir législatif ?",o:["Il vote les lois et le budget de l'État","Il fait appliquer les lois","Il juge les personnes","Il nomme le Premier ministre"]},
+{c:"pou",q:"Que fait le pouvoir judiciaire ?",o:["Il fait respecter le droit et juge les personnes en cas de conflit ou d'infraction","Il vote les lois","Il dirige l'administration","Il représente la France à l'étranger"]},
+{c:"pou",t:"txt",q:"Le Parlement vote les lois et le ... de l'État.",acc:["budget"],r:"le budget"},
+{c:"pou",q:"Comment est élu le Président de la République ?",o:["Au suffrage universel direct, pour 5 ans","Au suffrage universel indirect, pour 6 ans","Par les députés, pour 5 ans","Par les sénateurs, pour 7 ans"]},
+{c:"pou",q:"Pour combien de temps le Président est-il élu ?",o:["5 ans","6 ans","7 ans","3 ans"]},
+{c:"pou",q:"Qui nomme le Premier ministre ?",o:["Le Président de la République","L'Assemblée nationale","Le Sénat","Les citoyens"]},
+{c:"pou",q:"Qui nomme les ministres ?",o:["Le Président, sur proposition du Premier ministre","Le Premier ministre seul","Les députés","Le Conseil constitutionnel"]},
+{c:"pou",q:"Lequel n'est PAS un rôle du Président de la République ?",o:["Voter les lois","Veiller au respect de la Constitution","Être chef des armées","Représenter la France à l'étranger"]},
+{c:"pou",q:"Qui est le chef de l'État et le chef des armées ?",o:["Le Président de la République","Le Premier ministre","Le président du Sénat","Le ministre de l'Intérieur"]},
+{c:"pou",q:"Le Président peut dissoudre ...",o:["l'Assemblée nationale","le Sénat","le Conseil constitutionnel","la Cour des comptes"]},
+{c:"pou",q:"Qui dirige le Gouvernement ?",o:["Le Premier ministre","Le Président de la République","Le président de l'Assemblée nationale","Le ministre de la Justice"]},
+{c:"pou",q:"Que fait le Gouvernement ?",o:["Il détermine et conduit la politique de la Nation, prépare les projets de loi, fait appliquer les lois, dirige l'administration","Il vote les lois et le budget","Il juge les affaires pénales","Il contrôle l'argent public"]},
+{c:"pou",q:"Comment sont élus les députés ?",o:["Au suffrage universel direct, pour 5 ans","Au suffrage universel indirect, pour 6 ans","Nommés par le Président","Tirés au sort"]},
+{c:"pou",q:"Comment sont élus les sénateurs ?",o:["Au suffrage universel indirect, pour 6 ans","Au suffrage universel direct, pour 5 ans","Nommés par le Premier ministre","Au suffrage universel direct, pour 6 ans"]},
+{c:"pou",q:"Le Sénat est renouvelé ...",o:["par moitié tous les 3 ans","entièrement tous les 5 ans","par tiers tous les 2 ans","jamais"]},
+{c:"pou",q:"Le Sénat représente ...",o:["les collectivités territoriales (commune, département, région)","les entreprises","les pays européens","les juges"]},
+{c:"pou",q:"Quelles sont les 3 collectivités territoriales ?",o:["La commune, le département, la région","La ville, le pays, l'Europe","Le quartier, la rue, la ville","L'État, le Sénat, l'Assemblée"]},
+{c:"pou",q:"Quelle assemblée peut renverser le Gouvernement ?",o:["L'Assemblée nationale, en adoptant une motion de censure","Le Sénat","Le Conseil constitutionnel","La Cour des comptes"]},
+{c:"pou",t:"txt",q:"L'Assemblée nationale peut renverser le Gouvernement en adoptant une motion de ...",acc:["censure"],r:"motion de censure"},
+{c:"pou",q:"En cas de désaccord persistant entre les deux chambres, qui a le dernier mot ?",o:["L'Assemblée nationale","Le Sénat","Le Président","Le Conseil constitutionnel"]},
+{c:"pou",t:"vf",q:"Les juges doivent être indépendants du pouvoir politique.",a:0},
+{c:"pou",q:"Les tribunaux jugent notamment les affaires ...",o:["civiles et pénales","européennes et municipales","budgétaires","électorales uniquement"]},
+{c:"pou",q:"Quel est le rôle du Conseil constitutionnel ?",o:["Vérifier la conformité de certaines lois à la Constitution et contrôler certaines élections nationales","Conseiller le Gouvernement sur les projets de loi","Contrôler l'utilisation de l'argent public","Voter le budget"]},
+{c:"pou",q:"Quel est le rôle du Conseil d'État ?",o:["Il conseille le Gouvernement sur les projets de loi et c'est la juridiction suprême de l'ordre administratif","Il vérifie que les lois respectent la Constitution","Il contrôle l'argent public","Il élit le Président"]},
+{c:"pou",q:"Quel est le rôle de la Cour des comptes ?",o:["Contrôler l'utilisation de l'argent public","Juger les crimes","Voter les lois","Conseiller le Président"]},
+{c:"pou",q:"Quelle institution contrôle certaines élections nationales ?",o:["Le Conseil constitutionnel","La Cour des comptes","Le Sénat","Le Conseil d'État"]},
+{c:"pou",q:"Quelle est la juridiction suprême de l'ordre ADMINISTRATIF ?",o:["Le Conseil d'État","La Cour de cassation","Le Conseil constitutionnel","Le tribunal correctionnel"]},
+{c:"pou",q:"Quelle est la juridiction suprême de l'ordre JUDICIAIRE ?",o:["La Cour de cassation","Le Conseil d'État","La Cour des comptes","Le Sénat"]},
+
+// ===== TEXTES FONDAMENTAUX =====
+{c:"txt",q:"Quels sont les 4 textes fondamentaux qui composent la Constitution de la Ve République ?",o:["Déclaration des droits de l'homme et du citoyen (1789), Préambule de 1946, Constitution de 1958, Charte de l'environnement (2004)","Code civil, Code pénal, Code du travail, Code de la route","Traité de Maastricht, Constitution de 1958, loi de 1905, Charte de 2004","DDHC 1789, loi de 1905, traité de 1992, Préambule de 1946"]},
+{c:"txt",q:"Date de la Déclaration des droits de l'homme et du citoyen ?",o:["26 août 1789","14 juillet 1789","9 décembre 1905","4 octobre 1958"]},
+{c:"txt",t:"txt",q:"La Déclaration des droits de l'homme et du citoyen date de ... (année)",acc:["1789"],r:"1789 (26 août 1789)"},
+{c:"txt",q:"Que fait la Déclaration des droits de l'homme et du citoyen ?",o:["Elle affirme les égalités et les libertés","Elle organise les élections européennes","Elle sépare les Églises et l'État","Elle protège l'environnement"]},
+{c:"txt",q:"Le Préambule de la Constitution date de ...",o:["1946 (IVe République)","1958","1789","2004"]},
+{c:"txt",q:"Qu'est-ce qu'un préambule ?",o:["Une introduction","Une conclusion","Un article de loi","Un jugement"]},
+{c:"txt",q:"Le Préambule de 1946 reconnaît notamment ...",o:["des droits sociaux : égalité, droit d'asile, droit de grève","le droit de vote aux élections européennes","la séparation des Églises et de l'État","le droit à un environnement sain"]},
+{c:"txt",q:"Quel texte reconnaît le droit de grève ?",o:["Le Préambule de 1946","La Charte de l'environnement","La loi de 1905","Le traité de Maastricht"]},
+{c:"txt",q:"La Charte de l'environnement date de ...",o:["2004","1946","1958","1992"]},
+{c:"txt",q:"DDHC, article 1 : « Les hommes naissent et demeurent ... »",o:["libres et égaux en droits","riches et puissants","citoyens européens","soumis à la loi"]},
+{c:"txt",t:"txt",q:"Art. 1 DDHC : « Les hommes naissent et demeurent libres et ... en droits. »",acc:["egaux"],r:"égaux"},
+{c:"txt",q:"DDHC, article 3 : où réside le principe de toute souveraineté ?",o:["Dans la Nation","Dans le roi","Dans l'Église","Dans l'armée"]},
+{c:"txt",q:"DDHC, article 4 : la liberté consiste à ...",o:["pouvoir faire tout ce qui ne nuit pas à autrui","faire absolument tout ce qu'on veut","obéir au Président","ne jamais payer d'impôts"]},
+{c:"txt",q:"DDHC, article 4 : qui fixe les limites (bornes) de la liberté ?",o:["La loi","Le Président","Chaque citoyen","Les juges seuls"]},
+{c:"txt",q:"DDHC, article 11 : quel est « un des droits les plus précieux de l'homme » ?",o:["La libre communication des pensées et des opinions","Le droit de propriété","Le droit de vote","Le droit de grève"]},
+{c:"txt",q:"DDHC, article 11 : quelle est la limite à la liberté d'expression ?",o:["Il faut répondre de l'abus de cette liberté dans les cas prévus par la loi","Il n'y a aucune limite","Il faut l'accord du maire","Il faut être majeur"]},
+{c:"txt",q:"Préambule de 1946, alinéa 11 : la Nation garantit à tous ...",o:["la protection de la santé, la sécurité matérielle, le repos et les loisirs","un travail payé par l'État","une maison","le droit de vote dès 16 ans"]},
+{c:"txt",q:"Préambule de 1946 : une personne incapable de travailler (âge, santé, situation économique) a le droit ...",o:["d'obtenir de la collectivité des moyens convenables d'existence","de ne pas respecter la loi","d'être élu député","de ne pas voter"]},
+{c:"txt",q:"Préambule de 1946, alinéa 13 : la Nation garantit l'égal accès de l'enfant et de l'adulte à ...",o:["l'instruction","la propriété","l'armée","la religion"]},
+{c:"txt",q:"Constitution de 1958, article 66 : « Nul ne peut être ... »",o:["arbitrairement détenu","obligé de voter","empêché de voyager","privé de travail"]},
+{c:"txt",q:"Selon l'article 66, qui est « gardienne de la liberté individuelle » ?",o:["L'autorité judiciaire","Le Président","Le Parlement","La police"]},
+{c:"txt",q:"Charte de l'environnement, article 1 : chacun a le droit ...",o:["de vivre dans un environnement équilibré et respectueux de la santé","de polluer s'il paie","de posséder un jardin","de ne pas trier ses déchets"]},
+{c:"txt",q:"Charte de l'environnement, article 2 : toute personne a le DEVOIR ...",o:["de prendre part à la préservation et à l'amélioration de l'environnement","de planter un arbre par an","de ne jamais prendre la voiture","de voter écologiste"]},
+{c:"txt",t:"vf",q:"La Charte de l'environnement de 2004 donne des droits mais aussi des devoirs.",a:0,e:"Oui : droit de vivre dans un environnement sain (art. 1) et devoir de le préserver (art. 2)."},
+{c:"txt",q:"Le préambule de la Constitution de 1958 proclame l'attachement du peuple français à ...",o:["la DDHC de 1789, au Préambule de 1946 et à la Charte de l'environnement de 2004","la loi de 1905 uniquement","au traité de Maastricht","au Code civil"]},
+
+// ===== QPC =====
+{c:"qpc",t:"txt",q:"Que veut dire QPC ?",acc:["question+prioritaire+constitutionnalite"],r:"Question Prioritaire de Constitutionnalité"},
+{c:"qpc",q:"Qu'est-ce qu'une QPC ?",o:["Le droit pour toute personne de soutenir, lors d'un procès, qu'une loi est contraire aux droits et libertés garantis par la Constitution","Un vote des citoyens pour changer la Constitution","Une question posée par un député au Gouvernement","Un examen pour devenir juge"]},
+{c:"qpc",q:"Quand peut-on poser une QPC ?",o:["Au cours d'un procès","Pendant une élection","À tout moment, sans procès","Seulement si on est député"]},
+{c:"qpc",q:"Qui examine d'abord une demande de QPC ?",o:["Un juge","Le Président","Le Parlement","Le maire"]},
+{c:"qpc",q:"À quelle condition le juge transmet-il la QPC ?",o:["Si la question est nouvelle et sérieuse","Si l'avocat paie","Si le Président est d'accord","Toujours, sans condition"]},
+{c:"qpc",q:"Après le juge, à qui la QPC est-elle transmise ?",o:["Au Conseil d'État ou à la Cour de cassation","Directement au Président","À l'Assemblée nationale","À la Cour des comptes"]},
+{c:"qpc",q:"Qui décide à la fin si la loi respecte la Constitution ?",o:["Le Conseil constitutionnel","La Cour de cassation","Le tribunal correctionnel","Le Sénat"]},
+{c:"qpc",q:"Si la loi est jugée contraire à la Constitution, le Conseil constitutionnel peut ...",o:["la supprimer ou décider qu'elle ne sera plus appliquée","mettre le juge en prison","dissoudre l'Assemblée","renvoyer le Gouvernement"]},
+{c:"qpc",q:"Que montre la QPC ?",o:["Que l'autorité judiciaire est indépendante : les juges appliquent le droit sans recevoir d'ordres du gouvernement","Que le gouvernement donne des ordres aux juges","Que les juges votent les lois","Que les lois ne peuvent jamais changer"]},
+{c:"qpc",t:"vf",q:"Même une loi déjà votée peut être contrôlée et corrigée grâce à la QPC.",a:0},
+{c:"qpc",q:"Ordre du parcours d'une QPC :",o:["Juge (tribunal) → Cour de cassation ou Conseil d'État → Conseil constitutionnel","Conseil constitutionnel → Cour de cassation → juge","Parlement → Président → Conseil constitutionnel","Cour de cassation → tribunal → Président"]},
+{c:"qpc",q:"Combien de temps a la Cour de cassation pour vérifier la QPC ?",o:["3 mois","3 jours","1 an","6 mois"]},
+{c:"qpc",q:"Combien de temps a ensuite le Conseil constitutionnel pour se prononcer ?",o:["3 mois","1 mois","1 an","5 ans"]},
+{c:"qpc",q:"Fiche 57 : qui entreprend une action en justice ?",o:["Des associations de défense de l'environnement","Le Président de la République","Une entreprise de production d'engrais","Le Conseil constitutionnel"]},
+{c:"qpc",q:"Fiche 57 : devant quel tribunal ?",o:["Le tribunal correctionnel","La Cour des comptes","Le Conseil d'État","Le Sénat"]},
+{c:"qpc",q:"Fiche 57 : que dénoncent les associations ?",o:["Les effets sur la flore et la faune des résidus d'engrais déversés dans un lac par une entreprise","La hausse des impôts","La fermeture d'une école","Le prix de l'essence"]},
+{c:"qpc",q:"Fiche 57 : sur quoi s'appuient les avocats des associations ?",o:["Une loi de 2018 qui interdit les engrais contenant des substances non autorisées en Europe","La loi de 1905","Le traité de Maastricht","Le Code de la route"]},
+{c:"qpc",q:"Fiche 57 : qui conteste l'action en justice ?",o:["Le dirigeant de l'entreprise de production d'engrais et un groupement de producteurs","Les associations","Le juge","Le maire"]},
+{c:"qpc",q:"Fiche 57 : quel droit l'entreprise dit-elle attaqué ?",o:["La liberté d'entreprendre, garantie par la DDHC de 1789","Le droit de grève","La liberté d'expression","Le droit d'asile"]},
+{c:"qpc",q:"Fiche 57 : que rédigent et déposent les avocats de l'entreprise, et quel est l'effet ?",o:["Une QPC, ce qui suspend le procès","Une motion de censure, ce qui renverse le gouvernement","Un amendement, ce qui change la loi","Une pétition, ce qui annule le procès"]},
+{c:"qpc",q:"Fiche 57 : sur quel texte s'appuie le Conseil constitutionnel ?",o:["La Charte de l'environnement de 2004","La DDHC de 1789","Le Préambule de 1946","La loi de 1905"]},
+{c:"qpc",q:"Fiche 57 : quelle est la décision du Conseil constitutionnel ?",o:["La protection de l'environnement est un objectif de valeur constitutionnelle qui peut justifier des atteintes à la liberté d'entreprendre","La liberté d'entreprendre est plus importante que l'environnement","La loi de 2018 est supprimée","Le procès est annulé définitivement"]},
+{c:"qpc",t:"txt",q:"Selon le Conseil constitutionnel, l'environnement est un « patrimoine ... des êtres humains ».",acc:["commun"],r:"patrimoine commun"},
+{c:"qpc",q:"Fiche 57 : les 5 étapes du schéma dans l'ordre :",o:["Associations / Dirigeants de l'entreprise → Tribunal correctionnel → Cour de cassation → Conseil constitutionnel","Tribunal → Associations → Conseil constitutionnel → Cour de cassation","Conseil constitutionnel → Tribunal → Cour de cassation → Entreprise","Cour de cassation → Associations → Tribunal → Conseil constitutionnel"]},
+
+// ===== LOI =====
+{c:"loi",q:"Qu'est-ce qu'une loi ?",o:["Une règle votée par le Parlement, qui organise la vie en société et doit respecter la Constitution","Une décision du Président","Un jugement d'un tribunal","Un règlement européen"]},
+{c:"loi",q:"Quand la loi vient du GOUVERNEMENT (Premier ministre), on parle de ...",o:["projet de loi","proposition de loi","amendement","décret"]},
+{c:"loi",q:"Quand la loi vient d'un DÉPUTÉ ou d'un SÉNATEUR, on parle de ...",o:["proposition de loi","projet de loi","motion de censure","décret"]},
+{c:"loi",t:"txt",q:"Une loi qui vient d'un député ou d'un sénateur s'appelle une ... de loi.",acc:["proposition"],r:"une proposition de loi"},
+{c:"loi",t:"txt",q:"Une loi préparée par le gouvernement s'appelle un ... de loi.",acc:["projet"],r:"un projet de loi"},
+{c:"loi",q:"Quel article de la Constitution parle de l'initiative des lois ?",o:["Article 39","Article 1","Article 66","Article 11"]},
+{c:"loi",q:"Qui prépare un projet de loi ?",o:["Le ministre concerné avec son équipe (par exemple le ministre de l'Écologie)","Le Conseil constitutionnel","Les juges","Le Sénat"]},
+{c:"loi",q:"Où est discuté et adopté un projet de loi avant d'aller au Parlement ?",o:["En Conseil des ministres, sous la présidence du Président de la République","Au Conseil constitutionnel","À la Cour de cassation","Au Parlement européen"]},
+{c:"loi",q:"Qui étudie d'abord le texte au Parlement ?",o:["Une commission parlementaire spécialisée","Le Président","Le Conseil d'État","Les citoyens"]},
+{c:"loi",q:"Comment s'appellent les modifications proposées par les parlementaires ?",o:["Des amendements","Des décrets","Des motions","Des QPC"]},
+{c:"loi",t:"txt",q:"Les modifications proposées par les parlementaires s'appellent des ...",acc:["amendement"],r:"des amendements"},
+{c:"loi",q:"Si l'Assemblée et le Sénat ne sont pas d'accord, le texte fait des allers-retours entre eux. C'est ...",o:["la navette parlementaire","la motion de censure","la promulgation","la QPC"]},
+{c:"loi",t:"txt",q:"Les allers-retours du texte entre l'Assemblée et le Sénat s'appellent la ... parlementaire.",acc:["navette"],r:"la navette parlementaire"},
+{c:"loi",q:"Quelle commission cherche un accord quand les deux assemblées ont voté un texte différent ?",o:["La commission mixte paritaire","La commission d'enquête","La Cour des comptes","Le Conseil des ministres"]},
+{c:"loi",q:"Composition de la commission mixte paritaire :",o:["7 députés et 7 sénateurs","14 députés","7 ministres et 7 juges","10 députés et 4 sénateurs"]},
+{c:"loi",q:"Qui peut vérifier, une fois la loi votée, qu'elle respecte la Constitution ?",o:["Le Conseil constitutionnel","La Cour des comptes","Le Conseil des ministres","Le maire"]},
+{c:"loi",q:"Qui peut saisir le Conseil constitutionnel sur une loi votée ?",o:["Le Président, le Premier ministre, le président de l'Assemblée, le président du Sénat, 60 députés ou 60 sénateurs","N'importe quel citoyen, sans procès","Seulement les juges","Seulement le Président"]},
+{c:"loi",q:"Combien de députés (ou sénateurs) faut-il pour saisir le Conseil constitutionnel ?",o:["60","7","100","577"]},
+{c:"loi",q:"Que fait le Président quand il « promulgue » la loi ?",o:["Il confirme officiellement son existence","Il la vote","Il la juge","Il l'écrit"]},
+{c:"loi",q:"Où la loi est-elle publiée pour entrer en vigueur ?",o:["Au Journal officiel","Dans un journal télévisé","Sur le site du Sénat","Au Conseil constitutionnel"]},
+{c:"loi",q:"Quelles sont les 2 dernières étapes pour qu'une loi entre en application ?",o:["La promulgation par le Président, puis la publication au Journal officiel","Le vote au Sénat puis à l'Assemblée","La QPC puis le procès","Le projet puis la proposition"]},
+{c:"loi",q:"Que prend parfois le gouvernement pour préciser comment appliquer la loi ?",o:["Des décrets","Des amendements","Des motions de censure","Des QPC"]},
+{c:"loi",q:"Ordre correct des grandes étapes :",o:["Proposition/projet → 1re lecture Assemblée → 1re lecture Sénat → CMP → adoption définitive → vérification constitutionnalité → promulgation → publication","Promulgation → vote → publication → proposition","Publication → proposition → CMP → vote","Vérification → proposition → promulgation → vote"]},
+{c:"loi",q:"Fiche 58 : quelle loi sert d'exemple ?",o:["La loi du 25 juillet 2024 visant à prévenir les ingérences étrangères en France","La loi de 1905 sur la laïcité","La loi de 2018 sur les engrais","La loi TikTok de 2025"]},
+{c:"loi",q:"Fiche 58 : qui a rédigé la proposition de loi ?",o:["Des députés de la majorité (Sacha Houlié, Thomas Gassilloud, Constance Le Grip, Renaissance)","Le Premier ministre","Le Sénat","Le Conseil constitutionnel"]},
+{c:"loi",q:"Fiche 58 : que vise à mettre en place cette loi ?",o:["Des mesures de protection et des sanctions pénales plus importantes contre les ingérences étrangères (cyberattaques, diffusions...)","L'interdiction des réseaux sociaux","La séparation des Églises et de l'État","Le vote à 16 ans"]},
+{c:"loi",q:"Fiche 58 : quelle assemblée a discuté et voté la loi en premier ?",o:["L'Assemblée nationale","Le Sénat","Le Conseil constitutionnel","Le Parlement européen"]},
+{c:"loi",q:"Fiche 58 : quelle assemblée l'examine ensuite ?",o:["Le Sénat","L'Assemblée nationale","Le Conseil d'État","La Cour de cassation"]},
+{c:"loi",q:"Fiche 58 : qui a engagé la procédure accélérée ?",o:["Le gouvernement","Le Sénat","Le Président","LFI"]},
+{c:"loi",q:"Fiche 58 : qu'est-ce que la procédure accélérée ?",o:["Un mécanisme qui réduit les délais et les étapes pour adopter une loi","Une loi votée sans le Parlement","Un vote des citoyens","Une QPC rapide"]},
+{c:"loi",q:"Fiche 58 : qui a saisi le Conseil constitutionnel, et quelle décision ?",o:["Des députés de La France insoumise (LFI) ; saisines déclarées irrecevables","Le Président ; loi supprimée","Le Sénat ; loi modifiée","Des citoyens ; procès suspendu"]},
+{c:"loi",q:"Fiche 58 : date de promulgation ?",o:["25 juillet 2024","6 février 2024","5 juin 2024","26 juillet 2024"]},
+{c:"loi",q:"Fiche 58 : date de publication au Journal officiel ?",o:["26 juillet 2024","25 juillet 2024","5 juin 2024","20 mars 2024"]},
+{c:"loi",q:"Fiche 58 : date du dépôt de la proposition de loi ?",o:["6 février 2024","20 mars 2024","27 mars 2024","25 juillet 2024"]},
+{c:"loi",q:"Fiche 58 : combien de temps a pris la procédure (du dépôt à la publication) ?",o:["Environ 5 mois et demi (6 février → 26 juillet 2024)","2 ans","1 mois","10 jours"],e:"Du 6 février au 26 juillet 2024 : un peu plus de 5 mois et demi."},
+
+// ===== COMMISSION D'ENQUETE =====
+{c:"enq",q:"Le Parlement ne fait pas que voter les lois : il ...",o:["contrôle aussi l'action du gouvernement","juge les criminels","nomme les juges","dirige l'armée"]},
+{c:"enq",q:"Pourquoi crée-t-on une commission d'enquête parlementaire ?",o:["Pour étudier un problème important (pollution, crise sanitaire, service public...)","Pour élire le Président","Pour juger un accusé","Pour voter le budget"]},
+{c:"enq",q:"Une commission d'enquête est composée de ...",o:["députés ou sénateurs","juges","ministres","citoyens tirés au sort"]},
+{c:"enq",q:"Lequel n'est PAS un pouvoir d'une commission d'enquête ?",o:["Condamner quelqu'un à une peine","Auditionner des ministres, experts, responsables ou témoins","Demander des documents","Rédiger un rapport avec des conclusions et propositions"]},
+{c:"enq",q:"À quoi sert le travail d'une commission d'enquête ?",o:["Il informe les citoyens et peut conduire à améliorer une loi ou changer certaines pratiques","Il remplace les juges","Il renverse le gouvernement","Il modifie la Constitution"]},
+{c:"enq",q:"Sur quoi portait la commission d'enquête étudiée ?",o:["Les effets psychologiques de TikTok sur les mineurs","Les ingérences étrangères","La pollution d'un lac","La laïcité à l'école"]},
+{c:"enq",q:"Combien d'experts la commission TikTok a-t-elle auditionnés ?",o:["Plus de 170","43","15","30 000"]},
+{c:"enq",q:"Combien de réponses à la consultation citoyenne ?",o:["30 000","170","43","1 million"]},
+{c:"enq",q:"Combien de temps ont duré les auditions ?",o:["Six mois","Une semaine","Deux ans","Un jour"]},
+{c:"enq",q:"Combien de propositions la commission a-t-elle faites ?",o:["43","170","15","8"]},
+{c:"enq",q:"Date de la conclusion de la commission d'enquête TikTok ?",o:["11 septembre 2025","4 novembre 2025","25 juillet 2024","9 mai 2025"]},
+{c:"enq",q:"Qui est le président de la commission d'enquête TikTok ?",o:["Arthur Delaporte (député PS)","Sacha Houlié","Le Premier ministre","Anne-Hélia Roure"]},
+{c:"enq",q:"Quelles personnes ont été auditionnées par la commission ?",o:["Les dirigeants de TikTok, une psychiatre, un influenceur, des familles","Seulement des ministres","Seulement des juges","Des sénateurs européens"]},
+{c:"enq",q:"Qui DÉFEND TikTok devant la commission ?",o:["Les dirigeants de TikTok","Les familles","La psychiatre","Le président de la commission"]},
+{c:"enq",q:"Argument des dirigeants de TikTok :",o:["Ils réfutent les accusations : plus de 50 fonctionnalités conçues pour la sécurité et le bien-être des ados","Ils reconnaissent tout","Ils veulent interdire TikTok","Ils accusent les parents de tout"]},
+{c:"enq",q:"Que dit l'influenceur auditionné ?",o:["Ce qui fonctionne le mieux, c'est le contenu qui choque : il attire le plus l'attention et génère le plus de ventes","TikTok est sans danger","Il faut interdire les téléphones","Les parents contrôlent tout"]},
+{c:"enq",q:"Que disent les parents sur l'algorithme ?",o:["Il est plus fort qu'eux, plus fort que l'accompagnement qu'ils peuvent donner à leurs enfants","Il est facile à contrôler","Il n'existe pas","Il protège les enfants"]},
+{c:"enq",q:"Quel risque décrit la psychiatre ?",o:["Des jeunes filles qui finissent avec une image déformée de leur corps après des vidéos sur la beauté","Des problèmes de vue","Des retards scolaires","Des dépenses d'argent"]},
+{c:"enq",q:"Laquelle est une mesure de PRÉVENTION proposée ?",o:["Interdire les réseaux sociaux aux moins de 15 ans (sauf messageries)","Saisir la procureure de Paris","Ouvrir une enquête pénale","Poursuivre les dirigeants pour parjure"]},
+{c:"enq",q:"Couvre-feu numérique proposé pour les 15-18 ans :",o:["De 22 heures à 8 heures","De 20 heures à 6 heures","De minuit à midi","Toute la journée"]},
+{c:"enq",q:"Comment la commission veut-elle sensibiliser les parents ?",o:["En intégrant les dangers des réseaux sociaux dans le carnet de santé","Par une amende","Par un examen","Par la télévision"]},
+{c:"enq",q:"Quelle mesure concerne les lycées ?",o:["L'interdiction du téléphone","L'interdiction des devoirs","Un cours de TikTok","La fermeture le samedi"]},
+{c:"enq",q:"Laquelle est une SANCTION à envisager (pas une prévention) ?",o:["Poursuivre TikTok pour infractions pénales et ses dirigeants pour parjure","Le couvre-feu numérique","Le carnet de santé","L'interdiction du téléphone au lycée"]},
+{c:"enq",t:"txt",q:"Que veut dire « parjure » ?",acc:["faux serment","violation+serment"],r:"faux serment, violation du serment"},
+{c:"enq",q:"Que dénonce Arthur Delaporte ?",o:["TikTok a délibérément mis en danger la santé et la vie de ses utilisateurs","TikTok paie trop d'impôts","TikTok est trop cher","TikTok n'a pas assez d'utilisateurs"]},
+{c:"enq",q:"Qu'a fait Arthur Delaporte après la commission ?",o:["Il a saisi la procureure de la République de Paris","Il a dissous l'Assemblée","Il a posé une QPC","Il a écrit une nouvelle Constitution"]},
+{c:"enq",q:"A-t-il été entendu ?",o:["Oui : le parquet de Paris a ouvert une enquête préliminaire sur TikTok","Non, rien ne s'est passé","Oui, TikTok a été fermé le jour même","Non, la commission a été supprimée"]},
+{c:"enq",q:"À qui l'enquête sur TikTok a-t-elle été confiée ?",o:["À la Brigade de lutte contre la cybercriminalité (BL2C) de la préfecture de police de Paris","Au Conseil constitutionnel","À la Cour des comptes","Au Sénat"]},
+{c:"enq",q:"Que pense-t-on des arguments des dirigeants de TikTok ?",o:["Ils ne sont pas convaincants : les témoignages (psychiatre, influenceur, familles) montrent que l'algorithme met en avant des contenus dangereux","Ils sont parfaitement prouvés","Ils montrent que TikTok est sans risque","On ne peut rien en penser"],e:"Question d'opinion : à l'écrit, justifie avec les témoignages des documents."},
+
+// ===== LAICITE =====
+{c:"lai",q:"Quelles sont les 3 valeurs de la France ?",o:["Liberté, Égalité, Fraternité","Travail, Famille, Patrie","Paix, Amour, Justice","Unité, Force, Honneur"]},
+{c:"lai",t:"txt",q:"Devise de la France : Liberté, Égalité, ...",acc:["fraternite"],r:"Fraternité"},
+{c:"lai",q:"Quels sont les principes de la République française ?",o:["Indivisible, laïque, démocratique et sociale","Libre, riche, puissante et européenne","Religieuse, unie, forte et juste","Monarchique, laïque, sociale et unie"]},
+{c:"lai",q:"Lequel n'est PAS un principe de la République ?",o:["Religieuse","Indivisible","Laïque","Sociale"]},
+{c:"lai",q:"Qu'est-ce que la laïcité ?",o:["Un principe fondamental de la République : l'autorité politique est indépendante des autorités religieuses","L'interdiction de toutes les religions","L'obligation d'avoir une religion","La religion officielle de l'État"]},
+{c:"lai",q:"Quelle loi établit la séparation des Églises et de l'État ?",o:["La loi du 9 décembre 1905","La loi du 25 juillet 2024","La Constitution de 1946","Le traité de 1992"]},
+{c:"lai",t:"txt",q:"La séparation des Églises et de l'État date de la loi du 9 décembre ... (année)",acc:["1905"],r:"1905"},
+{c:"lai",q:"Que dit la Constitution sur la laïcité ?",o:["Que la République est laïque","Que la France est catholique","Que la religion est interdite","Rien du tout"]},
+{c:"lai",q:"Dans un État laïque, l'État ...",o:["ne favorise ni ne discrimine aucune religion","favorise la religion majoritaire","interdit les religions","choisit la religion des citoyens"]},
+{c:"lai",q:"Chaque citoyen est libre ...",o:["de pratiquer sa religion (ou aucune) dans le respect de la loi","de ne pas respecter la loi pour sa religion","d'imposer sa religion aux autres","de pratiquer seulement chez lui en secret"]},
+{c:"lai",t:"vf",q:"La laïcité interdit d'avoir une religion.",a:1,e:"Faux : chacun est libre de pratiquer sa religion, dans le respect de la loi. L'État, lui, reste neutre."},
+
+// ===== EUROPE =====
+{c:"eu",q:"Depuis quand la démocratie française s'inscrit-elle dans un cadre européen ?",o:["Depuis la fin de la Seconde Guerre mondiale","Depuis 1789","Depuis 2004","Depuis 1905"]},
+{c:"eu",q:"La France participe notamment à ...",o:["Le Conseil de l'Europe et l'Union européenne","L'ONU seulement","Le Conseil constitutionnel européen","La Cour des comptes européenne seulement"]},
+{c:"eu",q:"Depuis quand existe le Conseil de l'Europe ?",o:["5 mai 1949","9 mai 1950","1992","1993"]},
+{c:"eu",q:"Que défend le Conseil de l'Europe ?",o:["Les droits de l'homme, la démocratie et l'État de droit","Uniquement l'économie","Les intérêts de la France","Les religions"]},
+{c:"eu",t:"vf",q:"Le Conseil de l'Europe et l'Union européenne, c'est la même chose.",a:1,e:"Faux : le Conseil de l'Europe est différent de l'Union européenne."},
+{c:"eu",q:"Combien d'États membres compte l'Union européenne ?",o:["27","28","15","50"]},
+{c:"eu",q:"Sur quels sujets coopèrent les États de l'UE ?",o:["Économie, environnement, sécurité, droits des citoyens, circulation des personnes","Uniquement la religion","Uniquement le sport","Uniquement l'armée"]},
+{c:"eu",q:"Un citoyen français est aussi ...",o:["citoyen de l'Union européenne","citoyen de tous les pays du monde","citoyen américain","seulement citoyen français"]},
+{c:"eu",q:"Depuis quel traité existe la citoyenneté européenne ?",o:["Le traité de Maastricht (1992), entré en vigueur en 1993","Le traité de Rome (1957)","La loi de 1905","La Constitution de 1958"]},
+{c:"eu",t:"txt",q:"La citoyenneté européenne existe depuis le traité de ... (1992).",acc:["maastricht"],r:"Maastricht"},
+{c:"eu",q:"Le traité de Maastricht est entré en vigueur en ...",o:["1993","1992","1949","2004"]},
+{c:"eu",q:"Qui est citoyen européen ?",o:["Toute personne qui a la nationalité d'un État membre de l'UE","Toute personne qui vit en Europe","Seulement les députés européens","Seulement les adultes"]},
+{c:"eu",q:"La citoyenneté européenne ...",o:["ne remplace pas la nationalité française : elle lui ajoute des droits","remplace la nationalité française","supprime le droit de vote en France","n'existe que pour voyager"]},
+{c:"eu",q:"Lequel est un droit du citoyen européen ?",o:["Circuler, voyager, étudier, travailler ou vivre dans un autre pays de l'UE","Voter à l'élection présidentielle d'un autre pays","Ne pas respecter les lois du pays où il vit","Avoir deux passeports automatiquement"]},
+{c:"eu",q:"Un citoyen européen peut voter et être candidat aux élections ...",o:["européennes et municipales dans le pays de l'UE où il réside","présidentielles dans tout pays de l'UE","législatives dans tout pays de l'UE","aucune hors de son pays"]},
+{c:"eu",q:"Hors de l'UE, si son pays n'a pas d'ambassade, un citoyen européen peut ...",o:["être protégé par l'ambassade ou le consulat d'un autre pays de l'UE","rien faire","demander de l'aide au Conseil constitutionnel","appeler le Sénat"]},
+{c:"eu",q:"En cas de problème avec une institution européenne, on peut ...",o:["adresser une pétition au Parlement européen ou saisir le Médiateur européen","poser une QPC","déposer une motion de censure","saisir la Cour des comptes"]},
+{c:"eu",q:"Tous les combien les citoyens élisent-ils les députés du Parlement européen ?",o:["Tous les 5 ans","Tous les 6 ans","Tous les 3 ans","Tous les 7 ans"]},
+{c:"eu",q:"Avec qui le Parlement européen vote-t-il les lois européennes ?",o:["Le Conseil de l'Union européenne, qui représente les États membres","Le Conseil de l'Europe","Le Sénat français","La Cour de justice"]},
+{c:"eu",q:"Comment un citoyen peut-il participer aux débats européens ?",o:["S'informer, échanger avec ses représentants, rejoindre une association, défendre une cause","Uniquement en devenant député","Il ne peut pas","En votant aux municipales seulement"]},
+{c:"eu",q:"Comment s'appelle le droit de l'Union européenne ?",o:["Le droit communautaire","Le droit constitutionnel","Le droit civil","Le droit pénal"]},
+{c:"eu",q:"Que fixent les traités européens ?",o:["Les grandes règles de fonctionnement de l'UE","Les salaires des citoyens","Les jugements des tribunaux français","Le budget des communes"]},
+{c:"eu",q:"Les RÈGLEMENTS européens ...",o:["s'appliquent directement dans tous les États membres","donnent des objectifs que chaque État adapte","sont des jugements","ne s'appliquent qu'en France"]},
+{c:"eu",q:"Les DIRECTIVES européennes ...",o:["donnent des objectifs aux États, qui doivent ensuite adapter leurs lois nationales","s'appliquent directement partout","sont des décisions de justice","sont facultatives"]},
+{c:"eu",q:"Qui veille au respect du droit de l'UE ?",o:["La Cour de justice de l'Union européenne","Le Conseil constitutionnel","Le Conseil de l'Europe","La Cour de cassation"]},
+{c:"eu",q:"Que contient le droit de l'UE ?",o:["Les traités, les règlements, les directives, les décisions de la Cour de justice de l'UE","La Constitution française et la DDHC","Les lois françaises uniquement","Les décrets du gouvernement"]},
+{c:"eu",q:"Le droit de l'UE concerne par exemple ...",o:["L'environnement, les droits des consommateurs, la circulation des personnes, la sécurité des produits","Le choix du Président français","La religion","Les notes au collège"]},
+{c:"eu",q:"Sur quelles valeurs repose la citoyenneté européenne ?",o:["Dignité humaine, liberté, démocratie, égalité, État de droit, respect des droits humains","Richesse, force, puissance","Religion, famille, travail","Économie, monnaie, commerce"]},
+{c:"eu",q:"Quand est le Jour de l'Europe ?",o:["Le 9 mai","Le 14 juillet","Le 5 mai","Le 1er janvier"]},
+{c:"eu",q:"Quelle est la devise de l'Union européenne ?",o:["Unie dans la diversité","Liberté, Égalité, Fraternité","L'union fait la force","Tous ensemble"]},
+{c:"eu",t:"txt",q:"Devise de l'UE : « Unie dans la ... »",acc:["diversite"],r:"Unie dans la diversité"},
+{c:"eu",q:"Quel est l'hymne européen ?",o:["L'Ode à la joie, de Beethoven","La Marseillaise","L'Hymne à l'amour","La Neuvième de Mozart"]},
+{c:"eu",t:"txt",q:"L'hymne européen est l'Ode à la joie, de ...",acc:["beethoven"],r:"Beethoven"}
+];
+
+// Questions générées : quel pouvoir ?
+var POU=["Pouvoir exécutif","Pouvoir législatif","Pouvoir judiciaire"];
+[["Le Président de la République",0],["Le Gouvernement",0],["Le Premier ministre",0],["L'Assemblée nationale",1],["Le Sénat",1],["Le Parlement",1],["Les juges",2],["Les tribunaux",2],["Faire appliquer les lois",0],["Voter les lois et le budget",1],["Juger en fonction des lois",2]]
+.forEach(function(x){Q.push({c:"pou",q:"« "+x[0]+" » : quel pouvoir ?",o:POU,a:x[1],fix:1});});
+
+// Questions générées : quel texte ?
+var TXT=["DDHC (1789)","Préambule de 1946","Constitution de 1958","Charte de l'environnement (2004)"];
+[["« Les hommes naissent et demeurent libres et égaux en droits »",0],["La liberté consiste à faire tout ce qui ne nuit pas à autrui",0],["La libre communication des pensées et des opinions",0],["La souveraineté réside dans la Nation",0],["La protection de la santé, le repos et les loisirs garantis à tous",1],["L'égal accès de l'enfant et de l'adulte à l'instruction",1],["Le droit de grève et le droit d'asile",1],["« Nul ne peut être arbitrairement détenu » (art. 66)",2],["L'autorité judiciaire, gardienne de la liberté individuelle",2],["Le droit de vivre dans un environnement équilibré",3],["Le devoir de préserver l'environnement",3]]
+.forEach(function(x){Q.push({c:"txt",q:"Dans quel texte trouve-t-on : "+x[0]+" ?",o:TXT,a:x[1],fix:1});});
+
+// Questions générées : quelle institution ?
+var INS=["Conseil constitutionnel","Conseil d'État","Cour des comptes","Cour de cassation"];
+[["Vérifie que les lois respectent la Constitution",0],["Contrôle certaines élections nationales",0],["Conseille le Gouvernement sur les projets de loi",1],["Juridiction suprême de l'ordre administratif",1],["Contrôle l'utilisation de l'argent public",2],["Juridiction suprême de l'ordre judiciaire, transmet la QPC",3]]
+.forEach(function(x){Q.push({c:"pou",q:"Quelle institution ? « "+x[0]+" »",o:INS,a:x[1],fix:1});});
+
+// Questions générées : prévention ou sanction ?
+var PS=["Prévention","Sanction"];
+[["Interdiction des réseaux sociaux aux moins de 15 ans",0],["Couvre-feu numérique de 22 h à 8 h pour les 15-18 ans",0],["Dangers des réseaux sociaux dans le carnet de santé",0],["Interdiction du téléphone dans les lycées",0],["Saisir la procureure pour infractions pénales",1],["Poursuivre les dirigeants pour parjure",1]]
+.forEach(function(x){Q.push({c:"enq",q:"« "+x[0]+" » : prévention ou sanction ?",o:PS,a:x[1],fix:1});});
+
+// Questions générées : dates
+var DAT=[["1789","Déclaration des droits de l'homme et du citoyen"],["1905","Loi de séparation des Églises et de l'État"],["1946","Préambule de la Constitution (IVe République)"],["1949","Création du Conseil de l'Europe (5 mai)"],["1958","Constitution de la Ve République"],["1992","Traité de Maastricht (citoyenneté européenne)"],["2004","Charte de l'environnement"],["2024","Loi contre les ingérences étrangères (25 juillet)"]];
+DAT.forEach(function(d,i){Q.push({c:"rep",q:"Que s'est-il passé en "+d[0]+" ?",pool:DAT.map(function(x){return x[1];}),a:i});
+ Q.push({c:"rep",q:"En quelle année : "+d[1]+" ?",pool:DAT.map(function(x){return x[0];}),a:i});});
+
+Q.forEach(function(q,i){q.id=i; if(q.t==="vf"){q.o=["Vrai","Faux"];q.fix=1;} if(q.a===undefined&&!q.t)q.a=0;});
+
+// ===== ÉTAT =====
+var KEY="rev-emc-democratie";
+var st={m:{},e:{},best:null,fb:[]};
+try{var s=localStorage.getItem(KEY);if(s)st=JSON.parse(s);}catch(e){}
+if(!st.fb)st.fb=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+function saveRun(){try{if(run)localStorage.setItem(KEY+"-run",JSON.stringify({mode:run.mode,ids:run.list.map(function(q){return q.id;}),i:run.i,score:run.score,wrong:run.wrong.map(function(q){return q.id;}),tried:run.tried}));else localStorage.removeItem(KEY+"-run");}catch(e){}}
+function loadRun(){try{var r=JSON.parse(localStorage.getItem(KEY+"-run")||"null");if(!r||r.i>=r.ids.length)return null;return r;}catch(e){return null;}}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim();}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
+var app=document.getElementById("app");
+var run=null;
+
+// ===== RETOURS (base partagée si dispo, sinon téléphone) =====
+var DB=null,dbFb=[],dbOk=false;
+(async function(){try{if(!window.claude||!window.claude.use)return;DB=await window.claude.use("db");if(!DB)return;
+ DB.collection("retours").onSnapshot(function(snap){dbOk=true;dbFb=[];snap.forEach(function(d){var x=d.data();x._id=d.id;dbFb.push(x);});if(!run)home();},function(){DB=null;});}catch(e){DB=null;}})();
+function allFb(){var l=dbFb.slice();st.fb.forEach(function(f){if(!f.synced)l.push(f);});return l.sort(function(a,b){return (b.date||"").localeCompare(a.date||"");});}
+async function sendFb(f){
+ if(DB){try{await DB.collection("retours").doc("r"+Date.now()+Math.floor(Math.random()*1000)).set(f);return true;}catch(e){}}
+ st.fb.push(f);save();return false;
+}
+var FBT=["La réponse est fausse","La question n'est pas claire","Pas dans mon cours","Il manque une réponse","Autre remarque"];
+function openFb(){
+ var q=run.list[run.i];var box=document.getElementById("fbbox");
+ var h='<div class="card" style="background:#f8f9fc;margin-top:12px"><b>💬 Ton retour sur cette question</b><div style="margin:8px 0">';
+ FBT.forEach(function(t,i){h+='<label style="display:block;margin:6px 0;font-size:15px"><input type="radio" name="fbt" value="'+i+'"'+(i===0?' checked':'')+'> '+t+'</label>';});
+ h+='</div><textarea id="fbtxt" rows="3" placeholder="Explique (facultatif) : quelle est la bonne réponse selon toi, ce qui n\'est pas clair..." style="width:100%;font-size:16px;padding:10px;border-radius:10px;border:2px solid #d0d6e2;font-family:inherit"></textarea>';
+ h+='<div class="row"><button class="btn main" onclick="submitFb()">Envoyer</button><button class="btn" onclick="document.getElementById(\'fbbox\').innerHTML=\'\'">Annuler</button></div></div>';
+ box.innerHTML=h;box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function submitFb(){
+ var q=run.list[run.i];var t=document.querySelector('input[name=fbt]:checked');
+ var f={qid:q.id,partie:CH[q.c],question:q.q,bonneReponse:goodText(q),type:FBT[t?+t.value:4],texte:(document.getElementById("fbtxt").value||"").trim(),date:new Date().toISOString()};
+ var box=document.getElementById("fbbox");box.innerHTML='<div class="fb ok">Envoi...</div>';
+ var shared=await sendFb(f);
+ box.innerHTML='<div class="fb ok">✅ Merci, retour enregistré'+(shared?'':' sur ce téléphone')+'. La question continue normalement.</div>';
+}
+function fbPage(){
+ var l=allFb();
+ var h='<div class="top"><button class="link" onclick="home()">← Accueil</button></div><h1>💬 Mes retours ('+l.length+')</h1>';
+ if(!l.length)h+='<div class="card">Aucun retour pour l\'instant. Pendant une question, appuie sur « 💬 Faire un retour ».</div>';
+ l.forEach(function(f){h+='<div class="wrong" style="border-left-color:#3b5bdb"><b style="color:#2b3f9e">'+esc(f.type)+'</b> · '+esc(f.partie||"")+'<br>'+esc(f.question)+'<br><span class="sub">Réponse de l\'appli : '+esc(f.bonneReponse)+'</span>'+(f.texte?'<br>📝 '+esc(f.texte):'')+'</div>';});
+ if(l.length)h+='<button class="btn alt" style="text-align:center" onclick="copyFb()">📋 Copier tous mes retours</button><div id="cpy" class="center sub"></div>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+function copyFb(){
+ var txt=allFb().map(function(f,i){return (i+1)+". ["+f.type+"] "+f.question+"\n   Réponse de l'appli : "+f.bonneReponse+(f.texte?"\n   Remarque : "+f.texte:"");}).join("\n\n");
+ try{navigator.clipboard.writeText(txt).then(function(){document.getElementById("cpy").textContent="Copié ✅";},function(){document.getElementById("cpy").textContent="Copie impossible ici.";});}catch(e){document.getElementById("cpy").textContent="Copie impossible ici.";}
+}
+
+function home(){
+ run=null;
+ var n=Q.length,m=Object.keys(st.m).length,e=Object.keys(st.e).length,pct=Math.round(m/n*100);
+ var h='<h1>🇫🇷 EMC : les règles du jeu démocratique</h1><div class="sub">Révision EMC, 3e. Objectif : 20/20 💪</div>';
+ h+='<div class="card"><b>Maîtrise du cours : '+pct+' %</b><div class="bar"><div style="width:'+pct+'%"></div></div><div class="sub" style="margin:0">'+m+' questions réussies sur '+n+(st.best!==null?' · Meilleure note à l\'examen blanc : <b>'+st.best+'/20</b>':'')+'</div></div>';
+ var r=loadRun();
+ if(r)h+='<button class="btn red" onclick="resume()">▶️ Reprendre ma série en cours<small>Il reste '+(r.ids.length-r.i)+' question(s) à valider</small></button>';
+ h+='<div class="note">🔁 Règle : une question ratée revient à la fin de la série. On ne termine que quand <b>tout</b> est juste.</div>';
+ h+='<button class="btn main" onclick="start(\'exam\')">🎯 Examen blanc<small>20 questions sur tout le chapitre, note sur 20 (1er essai)</small></button>';
+ h+='<button class="btn alt" onclick="start(\'all\')">📚 Tout le cours<small>Les '+n+' questions, dans le désordre</small></button>';
+ if(e)h+='<button class="btn red" onclick="start(\'err\')">❌ Refaire mes erreurs ('+e+')<small>Jusqu\'à ce qu\'il n\'en reste plus aucune</small></button>';
+ h+='<button class="btn" onclick="start(\'new\')">⭐ Questions pas encore réussies ('+(n-m)+')</button>';
+ h+='<h2>Par partie</h2>';
+ Object.keys(CH).forEach(function(k){var tot=Q.filter(function(q){return q.c===k;}),ok=tot.filter(function(q){return st.m[q.id];}).length;
+  h+='<button class="btn" onclick="start(\'ch\',\''+k+'\')">'+CH[k]+'<small>'+ok+' / '+tot.length+' réussies</small></button>';});
+ h+='<h2>Le cours</h2><button class="btn" onclick="fiche()">📖 Fiche de révision complète</button>';
+ h+='<button class="btn" onclick="fbPage()">💬 Mes retours sur les questions ('+allFb().length+')</button>';
+ h+='<div class="center"><button class="link" onclick="resetAll()">Remettre à zéro ma progression</button></div>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+function resetAll(){
+ app.innerHTML='<div class="card center"><p><b>Effacer toute ta progression ?</b><br><span class="sub">Tes retours sont gardés.</span></p><div class="row"><button class="btn red" onclick="st={m:{},e:{},best:null,fb:st.fb};save();run=null;saveRun();home()">Oui, effacer</button><button class="btn" onclick="home()">Annuler</button></div></div>';
+}
+function start(mode,ch){
+ var l=Q;
+ if(mode==="err")l=Q.filter(function(q){return st.e[q.id];});
+ if(mode==="new")l=Q.filter(function(q){return !st.m[q.id];});
+ if(mode==="ch")l=Q.filter(function(q){return q.c===ch;});
+ l=shuf(l);
+ if(mode==="exam"){
+  var by={};l.forEach(function(q){(by[q.c]=by[q.c]||[]).push(q);});
+  var want={rep:3,pou:4,txt:3,qpc:2,loi:3,enq:2,lai:1,eu:2},pick=[];
+  Object.keys(want).forEach(function(k){pick=pick.concat((by[k]||[]).slice(0,want[k]));});
+  l=shuf(pick);
+ }
+ if(!l.length){app.innerHTML='<div class="card center"><p>🎉 Rien à réviser ici, tout est réussi !</p><button class="btn main" onclick="home()">Retour</button></div>';return;}
+ run={mode:mode,list:l,i:0,score:0,wrong:[],tried:{}};
+ saveRun();show();
+}
+function resume(){
+ var r=loadRun();if(!r){home();return;}
+ run={mode:r.mode,list:r.ids.map(function(id){return Q[id];}).filter(Boolean),i:r.i,score:r.score,wrong:r.wrong.map(function(id){return Q[id];}).filter(Boolean),tried:r.tried||{}};
+ show();
+}
+function quitAsk(){
+ var left=run.list.length-run.i;
+ document.getElementById("quitbox").innerHTML='<div class="card" style="background:#fff5f5"><b>✋ Pas si vite !</b><p style="margin:6px 0">Il reste <b>'+left+'</b> question(s) à valider. Ta série est gardée : tu pourras la reprendre depuis l\'accueil.</p><div class="row"><button class="btn main" onclick="document.getElementById(\'quitbox\').innerHTML=\'\'">Je continue 💪</button><button class="btn" onclick="saveRun();home()">Faire une pause</button></div></div>';
+}
+function show(){
+ var q=run.list[run.i];run.done=false;
+ var unique=Object.keys(run.tried).length,first=!run.tried[q.id];
+ var left=run.list.length-run.i;
+ var h='<div class="top"><button class="link" onclick="quitAsk()">⏸ Pause</button><span>Reste à valider : <b>'+left+'</b> · ✅ '+run.score+'</span></div>';
+ h+='<div id="quitbox"></div>';
+ h+='<div class="bar"><div style="width:'+(run.i/run.list.length*100)+'%"></div></div>';
+ h+='<div class="card"><span class="tag">'+CH[q.c]+'</span>'+(first?'':' <span class="tag" style="background:#ffe3e3;color:#a61e1e">🔁 Ratée tout à l\'heure, à revalider</span>')+'<div class="q">'+esc(q.q)+'</div>';
+ if(q.t==="txt"){
+  h+='<div class="sub" style="margin:4px 0 10px">✍️ Écris la réponse (les accents ne comptent pas)</div><input type="text" id="inp" autocomplete="off" autocapitalize="off"><button class="btn main" style="text-align:center" onclick="checkTxt()">Valider</button>';
+ }else{
+  var opts;
+  if(q.pool){var others=shuf(q.pool.map(function(_,i){return i;}).filter(function(i){return i!==q.a;})).slice(0,3);opts=shuf([q.a].concat(others));run.cur=opts.map(function(i){return {txt:q.pool[i],ok:i===q.a};});}
+  else{opts=q.o.map(function(t,i){return {txt:t,ok:i===q.a};});run.cur=q.fix?opts:shuf(opts);}
+  run.cur.forEach(function(o,i){h+='<button class="opt" id="o'+i+'" onclick="pick('+i+')">'+esc(o.txt)+'</button>';});
+ }
+ h+='<div id="fb"></div><div class="center"><button class="link" onclick="openFb()">💬 Faire un retour sur cette question</button></div><div id="fbbox"></div></div>';
+ app.innerHTML=h;window.scrollTo(0,0);
+ var inp=document.getElementById("inp");if(inp){inp.focus();inp.addEventListener("keydown",function(ev){if(ev.key==="Enter")checkTxt();});}
+}
+function goodText(q){return q.t==="txt"?q.r:(q.pool?q.pool[q.a]:q.o[q.a]);}
+function pick(i){
+ if(run.done)return;run.done=true;
+ var ok=run.cur[i].ok;
+ run.cur.forEach(function(o,j){var b=document.getElementById("o"+j);b.disabled=true;if(o.ok)b.classList.add("ok");else if(j===i)b.classList.add("ko");});
+ result(ok);
+}
+function checkTxt(){
+ if(run.done)return;var q=run.list[run.i];var v=norm(document.getElementById("inp").value);
+ if(!v)return;run.done=true;document.getElementById("inp").disabled=true;
+ var ok=q.acc.some(function(a){return a.split("+").every(function(k){return v.indexOf(norm(k))>=0;});});
+ result(ok,true);
+}
+function result(ok,txt){
+ var q=run.list[run.i];var first=!run.tried[q.id];run.tried[q.id]=1;run.lastFirst=first;
+ record(q.id,ok);
+ if(ok){if(first)run.score++;}
+ else{if(first)run.wrong.push(q);run.list.push(q);}
+ saveRun();
+ var h='<div class="fb '+(ok?'ok':'ko')+'">'+(ok?'✅ <b>Bravo !</b>':'❌ <b>Pas tout à fait.</b>')+(!ok||txt?' Réponse : <b>'+esc(goodText(q))+'</b>':'')+(q.e?'<br>'+esc(q.e):'')+(ok?'':'<br>🔁 Cette question reviendra à la fin.')+'</div>';
+ if(!ok&&txt)h+='<button class="link" onclick="override()">J\'avais écrit la même chose avec d\'autres mots : compter juste</button>';
+ h+='<button class="btn main" style="text-align:center;margin-top:12px" onclick="next()">'+(run.i+1<run.list.length?'Question suivante →':'Voir mon résultat')+'</button>';
+ document.getElementById("fb").innerHTML=h;
+ document.getElementById("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function override(){var q=run.list[run.i];record(q.id,true);
+ if(run.lastFirst){run.score++;run.wrong.pop();}
+ run.list.pop();saveRun();
+ var f=document.getElementById("fb");f.querySelector(".fb").className="fb ok";f.querySelector(".fb").innerHTML='✅ <b>Compté juste.</b> Réponse : <b>'+esc(goodText(q))+'</b>';
+ var l=f.querySelector(".link");if(l)l.remove();
+ var b=f.querySelector(".btn");if(b)b.textContent=(run.i+1<run.list.length?'Question suivante →':'Voir mon résultat');}
+function record(id,ok){if(ok){st.m[id]=1;delete st.e[id];}else{delete st.m[id];st.e[id]=1;}save();}
+function next(){run.i++;saveRun();if(run.i<run.list.length)show();else end();}
+function end(){
+ var n=Object.keys(run.tried).length,s=run.score,note=Math.round(s/n*20*2)/2;
+ if(run.mode==="exam"&&(st.best===null||note>st.best)){st.best=note;save();}
+ var wrong=run.wrong;run.done=true;var mode=run.mode;run=null;saveRun();
+ var msg=note>=20?"🏆 PARFAIT du premier coup !":note>=16?"🔥 Très bien ! Toutes les questions sont maintenant validées.":note>=12?"👍 Bien : tout est validé, mais refais une série pour l'avoir du premier coup.":"💪 Tout est validé au final. Relis la fiche et recommence pour faire mieux du premier coup.";
+ var h='<div class="card center"><div class="sub" style="margin:0">Ta note (au premier essai)</div><div class="big">'+note+'/20</div><div>'+s+' juste(s) du premier coup sur '+n+'</div><p>✅ <b>Toutes les questions ont été validées.</b></p><p><b>'+msg+'</b></p></div>';
+ if(wrong.length){h+='<h2>Ratées au 1er essai ('+wrong.length+')</h2>';wrong.forEach(function(q){h+='<div class="wrong">'+esc(q.q)+'<br>→ <b>'+esc(goodText(q))+'</b></div>';});}
+ h+='<button class="btn main" style="text-align:center" onclick="start(\'exam\')">Nouvel examen blanc</button><button class="btn" style="text-align:center" onclick="home()">Accueil</button>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+function fiche(){
+ var h='<div class="top"><button class="link" onclick="home()">← Accueil</button></div><div class="card fiche"><h1>📖 Fiche de révision</h1>';
+ h+='<h3>1. Définitions</h3><ul>';
+ h+='<li><b>Démocratie</b> : c\'est <b>le peuple qui gouverne</b>.</li>';
+ h+='<li><b>Constitution</b> : texte qui <b>fixe l\'organisation des pouvoirs</b>. Celle de la <b>Ve République</b> a été adoptée en <b>1958</b>.</li>';
+ h+='<li><b>République</b> : régime politique où le dirigeant est <b>élu par le peuple</b> et gouverne <b>au nom du peuple</b>.</li>';
+ h+='<li>La Constitution est <b>la règle la plus importante</b> : toutes les autres lois doivent la respecter. Elle garantit les droits et libertés (liberté d\'expression, égalité devant la loi, droit de vote) et <b>répartit les pouvoirs</b> pour éviter qu\'une seule personne décide de tout.</li></ul>';
+ h+='<h3>2. Les 3 pouvoirs</h3><table><tr><th>Pouvoir</th><th>Qui ?</th><th>Rôle</th></tr><tr><td><b>Exécutif</b></td><td>Président + Gouvernement</td><td>Dirige le pays, fait appliquer les lois</td></tr><tr><td><b>Législatif</b></td><td>Parlement = Assemblée nationale + Sénat</td><td>Vote les lois et le budget de l\'État</td></tr><tr><td><b>Judiciaire</b></td><td>Les juges</td><td>Juge en fonction des lois</td></tr></table><ul>';
+ h+='<li><b>Président</b> : suffrage universel <b>direct, 5 ans</b>. Chef de l\'État, nomme le Premier ministre, veille au respect de la Constitution, représente la France, <b>chef des armées</b>, peut <b>dissoudre l\'Assemblée</b>.</li>';
+ h+='<li><b>Gouvernement</b> : dirigé par le <b>Premier ministre</b>. Conduit la politique de la Nation, prépare les projets de loi, fait appliquer les lois, dirige l\'administration. Ministres nommés par le Président <b>sur proposition du Premier ministre</b>.</li>';
+ h+='<li><b>Assemblée nationale</b> : députés élus au suffrage universel <b>direct, 5 ans</b>. Vote les lois, contrôle le Gouvernement, peut le renverser par une <b>motion de censure</b>. <b>Dernier mot</b> en cas de désaccord.</li>';
+ h+='<li><b>Sénat</b> : sénateurs élus au suffrage universel <b>indirect, 6 ans</b>, renouvelés <b>par moitié tous les 3 ans</b>. Représente les <b>collectivités territoriales</b> (commune, département, région).</li>';
+ h+='<li><b>Judiciaire</b> : fait respecter le droit, juge en cas de conflit ou d\'infraction. Juges <b>indépendants</b>. Affaires <b>civiles et pénales</b>.</li></ul>';
+ h+='<p><b>Autres institutions</b></p><ul><li><b>Conseil constitutionnel</b> : vérifie que les lois respectent la Constitution, contrôle certaines élections nationales.</li><li><b>Conseil d\'État</b> : conseille le Gouvernement sur les projets de loi, juridiction suprême de l\'ordre <b>administratif</b>.</li><li><b>Cour des comptes</b> : contrôle l\'utilisation de <b>l\'argent public</b>.</li><li><b>Cour de cassation</b> : juridiction suprême de l\'ordre <b>judiciaire</b>.</li></ul>';
+ h+='<h3>3. Les textes fondamentaux (bloc de constitutionnalité)</h3><table><tr><th>Texte</th><th>Ce qu\'il garantit</th></tr>';
+ h+='<tr><td><b>DDHC</b>, 26 août <b>1789</b></td><td>Égalités et libertés. Art. 1 : libres et égaux en droits. Art. 3 : souveraineté dans la Nation. Art. 4 : liberté = tout ce qui ne nuit pas à autrui, bornes fixées par la loi. Art. 11 : libre communication des pensées et opinions.</td></tr>';
+ h+='<tr><td><b>Préambule de 1946</b> (IVe Rép.)</td><td>Droits sociaux : égalité, droit d\'asile, droit de grève. Al. 11 : santé, sécurité matérielle, repos, loisirs ; moyens d\'existence pour qui ne peut travailler. Al. 13 : égal accès à l\'instruction.</td></tr>';
+ h+='<tr><td><b>Constitution de 1958</b></td><td>Préambule : attachement à 1789, 1946 et 2004. Art. 66 : nul ne peut être arbitrairement détenu ; l\'autorité judiciaire, gardienne de la liberté individuelle.</td></tr>';
+ h+='<tr><td><b>Charte de l\'environnement 2004</b></td><td>Art. 1 : droit à un environnement équilibré et sain. Art. 2 : devoir de le préserver et l\'améliorer.</td></tr></table>';
+ h+='<div class="note">💡 Préambule = introduction.</div>';
+ h+='<h3>4. La QPC (fiche 57)</h3><ul><li><b>Question Prioritaire de Constitutionnalité</b> : droit pour toute personne de soutenir, <b>lors d\'un procès</b>, qu\'une loi est contraire aux droits et libertés garantis par la Constitution.</li>';
+ h+='<li>Parcours : <b>juge</b> (si question nouvelle et sérieuse) → <b>Cour de cassation</b> (ou <b>Conseil d\'État</b>), 3 mois → <b>Conseil constitutionnel</b>, 3 mois. Si la loi est contraire : il peut la <b>supprimer</b> ou décider qu\'elle ne sera plus appliquée.</li>';
+ h+='<li>Déposer une QPC <b>suspend le procès</b>.</li><li>Montre que l\'autorité judiciaire est <b>indépendante</b> (pas d\'ordres du gouvernement) et que même une loi votée peut être corrigée.</li>';
+ h+='<li><b>Exemple</b> : des <b>associations de défense de l\'environnement</b> attaquent une <b>entreprise d\'engrais</b> (résidus dans un lac) devant le <b>tribunal correctionnel</b>, avec une loi de 2018. L\'entreprise invoque la <b>liberté d\'entreprendre</b> (DDHC 1789) et dépose une QPC. Le Conseil constitutionnel, avec la <b>Charte de l\'environnement de 2004</b>, juge que l\'environnement, <b>patrimoine commun</b> des êtres humains, est un <b>objectif de valeur constitutionnelle</b> qui peut limiter la liberté d\'entreprendre.</li></ul>';
+ h+='<h3>5. Le parcours d\'une loi (fiche 58)</h3><ul><li><b>Loi</b> : règle votée par le Parlement, qui organise la vie en société et respecte la Constitution.</li>';
+ h+='<li>Initiative du <b>Premier ministre</b> = <b>projet de loi</b> (art. 39), préparé par le ministre concerné, adopté en <b>Conseil des ministres</b>. Initiative d\'un <b>député/sénateur</b> = <b>proposition de loi</b>.</li></ul><ol>';
+ h+='<li>Étude en <b>commission parlementaire</b>, <b>amendements</b></li><li><b>1re lecture</b> Assemblée nationale, puis Sénat</li><li>Si désaccord : <b>navette parlementaire</b>, puis <b>commission mixte paritaire</b> (7 députés + 7 sénateurs)</li><li><b>Adoption définitive</b> (l\'Assemblée a le dernier mot)</li><li><b>Conseil constitutionnel</b> (saisi par Président, Premier ministre, président de l\'AN, du Sénat, <b>60 députés ou 60 sénateurs</b>)</li><li><b>Promulgation</b> par le Président</li><li><b>Publication au Journal officiel</b> : la loi entre en vigueur</li><li>Parfois des <b>décrets</b> du gouvernement</li></ol>';
+ h+='<p><b>Exemple</b> : loi du <b>25 juillet 2024</b> contre les <b>ingérences étrangères</b>. Proposition de députés Renaissance (Sacha Houlié, Thomas Gassilloud, Constance Le Grip), déposée le 6 février 2024. <b>Procédure accélérée</b> (gouvernement, 20 mars). AN 27 mars, Sénat 22 mai, CMP 30 mai, adoption définitive AN 5 juin. Saisines LFI <b>irrecevables</b>. Promulguée le 25 juillet, publiée au JO le <b>26 juillet 2024</b>. Durée : environ 5 mois et demi.</p>';
+ h+='<h3>6. La commission d\'enquête parlementaire</h3><ul><li>Le Parlement <b>contrôle aussi l\'action du gouvernement</b>. Une commission d\'enquête étudie un <b>problème important</b>. Composée de <b>députés ou sénateurs</b>.</li><li>Elle peut : <b>auditionner</b> (ministres, experts, témoins), <b>demander des documents</b>, <b>poser des questions</b>, <b>rédiger un rapport</b>.</li><li>Elle <b>informe les citoyens</b> et peut <b>améliorer une loi</b> ou changer des pratiques.</li></ul>';
+ h+='<p><b>Exemple TikTok</b> : 6 mois, <b>170+ experts</b>, 30 000 réponses citoyennes. Président : <b>Arthur Delaporte</b> (PS). Auditionnés : dirigeants de TikTok (nient : 50 fonctionnalités de sécurité), psychiatre, influenceur (le contenu choquant marche le mieux), familles (l\'algorithme est plus fort que les parents).</p>';
+ h+='<p>11 septembre 2025 : <b>43 propositions</b>. <b>Prévention</b> : pas de réseaux sociaux avant <b>15 ans</b>, <b>couvre-feu numérique 22 h à 8 h</b> (15-18 ans), dangers dans le <b>carnet de santé</b>, <b>téléphone interdit au lycée</b>. <b>Sanctions</b> : il <b>saisit la procureure de Paris</b> (infractions pénales, <b>parjure</b> = faux serment). <b>Entendu</b> : le parquet de Paris a ouvert une <b>enquête préliminaire</b>, confiée à la brigade de lutte contre la cybercriminalité.</p>';
+ h+='<h3>7. Valeurs, principes, laïcité</h3><ul><li><b>Valeurs</b> : Liberté, Égalité, Fraternité.</li><li><b>Principes</b> : la République est <b>indivisible, laïque, démocratique et sociale</b>.</li><li><b>Laïcité</b> : loi du <b>9 décembre 1905</b> = séparation des Églises et de l\'État. L\'autorité politique est <b>indépendante</b> des autorités religieuses. L\'État <b>ne favorise ni ne discrimine</b> aucune religion. Chacun est libre de pratiquer sa religion <b>dans le respect de la loi</b>.</li></ul>';
+ h+='<h3>8. L\'Europe (fiches 60, 61, 62)</h3><ul><li><b>Conseil de l\'Europe</b> (5 mai 1949) : droits de l\'homme, démocratie, État de droit. <b>Différent</b> de l\'UE.</li><li><b>UE</b> : <b>27 États</b>. Économie, environnement, sécurité, droits, circulation.</li>';
+ h+='<li><b>Citoyenneté européenne</b> : <b>traité de Maastricht (1992)</b>, en vigueur en <b>1993</b>. Nationalité d\'un État membre = citoyen européen. Elle <b>ajoute des droits</b>, ne remplace pas la nationalité.</li>';
+ h+='<li><b>Droits</b> : circuler, étudier, travailler, vivre dans l\'UE ; voter et être candidat aux <b>européennes</b> et aux <b>municipales</b> du pays de résidence ; protection consulaire d\'un autre pays de l\'UE hors de l\'Union ; <b>pétition</b> au Parlement européen, <b>Médiateur européen</b>.</li>';
+ h+='<li>Députés européens élus <b>tous les 5 ans</b>, votent les lois avec le <b>Conseil de l\'UE</b> (représente les États).</li>';
+ h+='<li><b>Droit communautaire</b> : <b>traités</b> (grandes règles), <b>règlements</b> (directement applicables), <b>directives</b> (objectifs, les États adaptent leurs lois), décisions de la <b>Cour de justice de l\'UE</b>.</li>';
+ h+='<li><b>Valeurs</b> : dignité humaine, liberté, démocratie, égalité, État de droit, droits humains.</li>';
+ h+='<li><b>Jour de l\'Europe</b> : 9 mai. <b>Devise</b> : « Unie dans la diversité ». <b>Hymne</b> : l\'Ode à la joie, Beethoven.</li></ul>';
+ h+='<div class="note">⚠️ Dans le cahier, sur le schéma de la fiche 58, la case 1 doit être « Proposition de loi » (et non « commission mixte paritaire »).</div>';
+ h+='</div><button class="btn main" style="text-align:center" onclick="start(\'exam\')">Je me teste 🎯</button>';
+ app.innerHTML=h;window.scrollTo(0,0);
+}
+home();
+</script>
+</body>
+</html>
